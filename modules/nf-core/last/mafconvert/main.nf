@@ -1,5 +1,5 @@
 process LAST_MAFCONVERT {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
@@ -14,18 +14,18 @@ process LAST_MAFCONVERT {
     tuple val(meta4), path(gzi)
 
     output:
-    tuple val(meta), path("*.axt.gz"),             optional:true, emit: axt_gz
-    tuple val(meta), path("*.bam"),                optional:true, emit: bam
-    tuple val(meta), path("*.blast.gz"),           optional:true, emit: blast_gz
-    tuple val(meta), path("*.blasttab.gz"),        optional:true, emit: blasttab_gz
-    tuple val(meta), path("*.chain.gz"),           optional:true, emit: chain_gz
-    tuple val(meta), path("*.cram"), path(fasta),  optional:true, emit: cram
-    tuple val(meta), path("*.gff.gz"),             optional:true, emit: gff_gz
-    tuple val(meta), path("*.html.gz"),            optional:true, emit: html_gz
-    tuple val(meta), path("*.psl.gz"),             optional:true, emit: psl_gz
-    tuple val(meta), path("*.sam.gz"),             optional:true, emit: sam_gz
-    tuple val(meta), path("*.tab.gz"),             optional:true, emit: tab_gz
-    path "versions.yml"                                         , emit: versions
+    tuple val(meta), path("*.axt.gz"), optional: true, emit: axt_gz
+    tuple val(meta), path("*.bam"), optional: true, emit: bam
+    tuple val(meta), path("*.blast.gz"), optional: true, emit: blast_gz
+    tuple val(meta), path("*.blasttab.gz"), optional: true, emit: blasttab_gz
+    tuple val(meta), path("*.chain.gz"), optional: true, emit: chain_gz
+    tuple val(meta), path("*.cram"), path(fasta), optional: true, emit: cram
+    tuple val(meta), path("*.gff.gz"), optional: true, emit: gff_gz
+    tuple val(meta), path("*.html.gz"), optional: true, emit: html_gz
+    tuple val(meta), path("*.psl.gz"), optional: true, emit: psl_gz
+    tuple val(meta), path("*.sam.gz"), optional: true, emit: sam_gz
+    tuple val(meta), path("*.tab.gz"), optional: true, emit: tab_gz
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -36,16 +36,16 @@ process LAST_MAFCONVERT {
     """
     set -o pipefail
 
-    case $format in
+    case ${format} in
         bam)
-            maf-convert $args -d sam  $maf | samtools view -b -o ${prefix}.${format}
+            maf-convert ${args} -d sam  ${maf} | samtools view -b -o ${prefix}.${format}
             ;;
         cram)
             # CRAM output is not supported if the genome is compressed with something else than bgzip
-            maf-convert $args -d sam  $maf | samtools view -Ct $fasta -o ${prefix}.${format}
+            maf-convert ${args} -d sam  ${maf} | samtools view -Ct ${fasta} -o ${prefix}.${format}
             ;;
         *)
-            maf-convert $args $format $maf | gzip --no-name > ${prefix}.${format}.gz
+            maf-convert ${args} ${format} ${maf} | gzip --no-name > ${prefix}.${format}.gz
             ;;
     esac
 
@@ -60,7 +60,7 @@ process LAST_MAFCONVERT {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    case $format in
+    case ${format} in
         bam)
             touch ${prefix}.${format}
             ;;

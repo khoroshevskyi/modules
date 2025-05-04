@@ -1,5 +1,5 @@
 process LAST_TRAIN {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
@@ -9,12 +9,12 @@ process LAST_TRAIN {
 
     input:
     tuple val(meta), path(fastx)
-    path  index
+    path index
 
     output:
     tuple val(meta), path("*.train"), emit: param_file
-    tuple val(meta), path("*.tsv")  , emit: multiqc
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("*.tsv"), emit: multiqc
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,13 +23,13 @@ process LAST_TRAIN {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    INDEX_NAME=\$(basename \$(ls $index/*.des) .des)
+    INDEX_NAME=\$(basename \$(ls ${index}/*.des) .des)
 
     last-train \\
-        $args \\
-        -P $task.cpus \\
+        ${args} \\
+        -P ${task.cpus} \\
         ${index}/\$INDEX_NAME \\
-        $fastx \\
+        ${fastx} \\
         > ${prefix}.train
 
     echo "id\tsubstitution_percent_identity\tlast -t\tlast -a\tlast -A\tlast -b\tlast -B\tlast -S"         > ${prefix}.train.tsv
@@ -52,7 +52,7 @@ process LAST_TRAIN {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    INDEX_NAME=\$(basename \$(ls $index/*.des) .des)
+    INDEX_NAME=\$(basename \$(ls ${index}/*.des) .des)
     touch ${prefix}.train
     touch ${prefix}.train.tsv
 

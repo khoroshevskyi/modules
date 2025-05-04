@@ -1,25 +1,25 @@
 process ART_ILLUMINA {
 
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/art:2016.06.05--h589041f_9':
-        'biocontainers/art:2016.06.05--h589041f_9' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/art:2016.06.05--h589041f_9'
+        : 'biocontainers/art:2016.06.05--h589041f_9'}"
 
     input:
     tuple val(meta), path(fasta)
-    val(sequencing_system)
-    val(fold_coverage)
-    val(read_length)
+    val sequencing_system
+    val fold_coverage
+    val read_length
 
     output:
     tuple val(meta), path("*.fq.gz"), emit: fastq
-    tuple val(meta), path("*.aln"), optional:true , emit: aln
-    tuple val(meta), path("*.sam"), optional:true , emit: sam
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("*.aln"), optional: true, emit: aln
+    tuple val(meta), path("*.sam"), optional: true, emit: sam
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,24 +28,25 @@ process ART_ILLUMINA {
     def args = task.ext.args ?: ''
     def args2 = task.ext.args2 ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def VERSION = '2016.06.05' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+    def VERSION = '2016.06.05'
+    // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
     art_illumina \\
-        -ss $sequencing_system \\
-        -i $fasta \\
-        -l $read_length \\
-        -f $fold_coverage \\
-        -o $prefix \\
-        $args
+        -ss ${sequencing_system} \\
+        -i ${fasta} \\
+        -l ${read_length} \\
+        -f ${fold_coverage} \\
+        -o ${prefix} \\
+        ${args}
 
     gzip \\
         --no-name \\
-        $args2 \\
-        $prefix*.fq
+        ${args2} \\
+        ${prefix}*.fq
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        art: $VERSION
+        art: ${VERSION}
     END_VERSIONS
     """
 
@@ -65,7 +66,7 @@ process ART_ILLUMINA {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        art: $VERSION
+        art: ${VERSION}
     END_VERSIONS
     """
 }

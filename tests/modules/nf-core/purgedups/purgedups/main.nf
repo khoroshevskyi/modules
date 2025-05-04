@@ -9,15 +9,13 @@ include { PURGEDUPS_PURGEDUPS } from '../../../../../modules/nf-core/purgedups/p
 workflow test_purgedups_purgedups {
 
     input = [
-        [ id:'test' ], // meta map
-        file(params.test_data['sarscov2']['genome']['genome_paf'], checkIfExists: true)
+        [id: 'test'],
+        file(params.test_data['sarscov2']['genome']['genome_paf'], checkIfExists: true),
     ]
 
-    PURGEDUPS_PBCSTAT ( input )
-    PURGEDUPS_CALCUTS ( PURGEDUPS_PBCSTAT.out.stat )
-    PURGEDUPS_PURGEDUPS (
-        PURGEDUPS_PBCSTAT.out.basecov
-            .join( PURGEDUPS_CALCUTS.out.cutoff )
-            .join( Channel.value( input ) )
+    PURGEDUPS_PBCSTAT(input)
+    PURGEDUPS_CALCUTS(PURGEDUPS_PBCSTAT.out.stat)
+    PURGEDUPS_PURGEDUPS(
+        PURGEDUPS_PBCSTAT.out.basecov.join(PURGEDUPS_CALCUTS.out.cutoff).join(Channel.value(input))
     )
 }

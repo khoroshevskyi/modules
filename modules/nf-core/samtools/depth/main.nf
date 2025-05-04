@@ -1,11 +1,11 @@
 process SAMTOOLS_DEPTH {
-    tag "$meta1.id"
+    tag "${meta1.id}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/samtools:1.21--h50ea8bc_0' :
-        'biocontainers/samtools:1.21--h50ea8bc_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/samtools:1.21--h50ea8bc_0'
+        : 'biocontainers/samtools:1.21--h50ea8bc_0'}"
 
     input:
     tuple val(meta1), path(bam)
@@ -13,7 +13,7 @@ process SAMTOOLS_DEPTH {
 
     output:
     tuple val(meta1), path("*.tsv"), emit: tsv
-    path "versions.yml"           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,11 +25,11 @@ process SAMTOOLS_DEPTH {
     """
     samtools \\
         depth \\
-        --threads ${task.cpus-1} \\
-        $args \\
-        $positions \\
+        --threads ${task.cpus - 1} \\
+        ${args} \\
+        ${positions} \\
         -o ${prefix}.tsv \\
-        $bam
+        ${bam}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

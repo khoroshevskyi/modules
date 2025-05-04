@@ -6,10 +6,11 @@ include { PARACLU } from '../../../../modules/nf-core/paraclu/main.nf'
 
 workflow test_paraclu {
 
-    input = [[  id:'test' ], // meta map
-                file(params.test_data['sarscov2']['genome']['test_bed'], checkIfExists: true)
-                ]
+    input = [
+        [id: 'test'],
+        file(params.test_data['sarscov2']['genome']['test_bed'], checkIfExists: true),
+    ]
     min_cluster = 30
 
-    PARACLU ( input, min_cluster )
+    PARACLU(input, min_cluster)
 }

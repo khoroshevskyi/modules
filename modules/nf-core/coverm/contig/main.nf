@@ -3,9 +3,9 @@ process COVERM_CONTIG {
     label "process_medium"
 
     conda "bioconda::coverm=0.7.0-0"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/coverm:0.7.0--h07ea13f_0' :
-        'biocontainers/coverm:0.7.0--h07ea13f_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/coverm:0.7.0--h07ea13f_0'
+        : 'biocontainers/coverm:0.7.0--h07ea13f_0'}"
 
     input:
     tuple val(meta), path(input)
@@ -15,16 +15,16 @@ process COVERM_CONTIG {
 
     output:
     tuple val(meta), path("*.depth.txt"), emit: coverage
-    path "versions.yml"                 , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args          = task.ext.args ?: ""
-    def prefix        = task.ext.prefix ?: "${meta.id}"
-    def fastq_input   = meta.single_end ? "--single" : interleaved ? "--interleaved" : "--coupled"
-    def input_type    = bam_input ? "--bam-files" : "${fastq_input}"
+    def args = task.ext.args ?: ""
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    def fastq_input = meta.single_end ? "--single" : interleaved ? "--interleaved" : "--coupled"
+    def input_type = bam_input ? "--bam-files" : "${fastq_input}"
     def reference_str = bam_input ? "" : "--reference ${reference}"
     """
     TMPDIR=.
@@ -43,7 +43,7 @@ process COVERM_CONTIG {
     """
 
     stub:
-    def prefix        = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}.depth.txt
 

@@ -3,18 +3,18 @@ process KHMER_NORMALIZEBYMEDIAN {
     label 'process_long'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/khmer:3.0.0a3--py37haa7609a_2' :
-        'biocontainers/khmer:3.0.0a3--py37haa7609a_2' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/khmer:3.0.0a3--py37haa7609a_2'
+        : 'biocontainers/khmer:3.0.0a3--py37haa7609a_2'}"
 
     input:
     path pe_reads
     path se_reads
-    val  name
+    val name
 
     output:
     path "${name}.fastq.gz", emit: reads
-    path "versions.yml"    , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,15 +23,15 @@ process KHMER_NORMALIZEBYMEDIAN {
     def args = task.ext.args ?: ''
     pe_args = pe_reads ? "--paired" : ""
     se_args = se_reads ? "--unpaired-reads ${se_reads}" : ""
-    files   = pe_reads ? pe_reads : se_reads
+    files = pe_reads ? pe_reads : se_reads
     """
     normalize-by-median.py \\
         -M ${task.memory.toGiga()}e9 \\
-        --gzip $args \\
+        --gzip ${args} \\
         -o ${name}.fastq.gz \\
-        $pe_args \\
-        $se_args \\
-        $files
+        ${pe_args} \\
+        ${se_args} \\
+        ${files}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

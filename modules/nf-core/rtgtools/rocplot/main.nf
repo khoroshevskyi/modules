@@ -1,11 +1,11 @@
 process RTGTOOLS_ROCPLOT {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/rtg-tools:3.12.1--hdfd78af_0':
-        'biocontainers/rtg-tools:3.12.1--hdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/rtg-tools:3.12.1--hdfd78af_0'
+        : 'biocontainers/rtg-tools:3.12.1--hdfd78af_0'}"
 
     input:
     tuple val(meta), path(input)
@@ -13,7 +13,7 @@ process RTGTOOLS_ROCPLOT {
     output:
     tuple val(meta), path("*.png"), emit: png
     tuple val(meta), path("*.svg"), emit: svg
-    path "versions.yml"           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

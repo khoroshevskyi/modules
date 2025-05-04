@@ -8,10 +8,10 @@ include { PURGEDUPS_CALCUTS } from '../../../../../modules/nf-core/purgedups/cal
 workflow test_purgedups_calcuts {
 
     input = [
-        [ id:'test' ], // meta map
-        file(params.test_data['sarscov2']['genome']['genome_paf'], checkIfExists: true)
+        [id: 'test'],
+        file(params.test_data['sarscov2']['genome']['genome_paf'], checkIfExists: true),
     ]
 
-    PURGEDUPS_PBCSTAT ( input )
-    PURGEDUPS_CALCUTS ( PURGEDUPS_PBCSTAT.out.stat )
+    PURGEDUPS_PBCSTAT(input)
+    PURGEDUPS_CALCUTS(PURGEDUPS_PBCSTAT.out.stat)
 }

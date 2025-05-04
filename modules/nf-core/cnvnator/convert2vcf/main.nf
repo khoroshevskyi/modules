@@ -1,29 +1,29 @@
 process CNVNATOR_CONVERT2VCF {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/cnvnator:0.4.1--py312h99c8fb2_11':
-        'biocontainers/cnvnator:0.4.1--py312h99c8fb2_11' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/cnvnator:0.4.1--py312h99c8fb2_11'
+        : 'biocontainers/cnvnator:0.4.1--py312h99c8fb2_11'}"
 
     input:
     tuple val(meta), path(calls)
 
     output:
     tuple val(meta), path("*.vcf"), emit: vcf
-    path "versions.yml"           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args       = task.ext.args   ?: ''
-    def prefix     = task.ext.prefix ?: "${meta.id}"
+    def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     cnvnator2VCF.pl \\
         ${calls} \\
-        $args \\
+        ${args} \\
         > ${prefix}.vcf
 
     cat <<-END_VERSIONS > versions.yml
@@ -33,7 +33,7 @@ process CNVNATOR_CONVERT2VCF {
     """
 
     stub:
-    def args   = task.ext.args ?: ''
+    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}.vcf

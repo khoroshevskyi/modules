@@ -1,19 +1,19 @@
 process BEDTOOLS_CLOSEST {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_0' :
-        'biocontainers/bedtools:2.31.1--hf5e1c6e_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_0'
+        : 'biocontainers/bedtools:2.31.1--hf5e1c6e_0'}"
 
     input:
     tuple val(meta), path(input_1), path(input_2)
-    path(fasta_fai)
+    path fasta_fai
 
     output:
-    tuple val(meta), path("*.${extension}") , emit: output
-    path "versions.yml"                     , emit: versions
+    tuple val(meta), path("*.${extension}"), emit: output
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -22,9 +22,9 @@ process BEDTOOLS_CLOSEST {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    extension = input_1.extension == "gz" ?
-                        (input_1 =~ /^.*\.(.*)\.gz$/)[0][1] :
-                        input_1.extension
+    extension = input_1.extension == "gz"
+        ? (input_1 =~ /^.*\.(.*)\.gz$/)[0][1]
+        : input_1.extension
 
     def reference = fasta_fai ? "-g ${fasta_fai}" : ""
 

@@ -1,22 +1,22 @@
 process PYPGX_RUNNGSPIPELINE {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/pypgx:0.25.0--pyh7e72e81_0':
-        'biocontainers/pypgx:0.25.0--pyh7e72e81_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/pypgx:0.25.0--pyh7e72e81_0'
+        : 'biocontainers/pypgx:0.25.0--pyh7e72e81_0'}"
 
     input:
     tuple val(meta), path(vcf), path(tbi), path(coverage), path(control_stats), val(pgx_gene)
     tuple val(meta2), path(resource_bundle)
-    val(assembly_version)
+    val assembly_version
 
     output:
     tuple val(meta), path("*pypgx_output/results.zip"), emit: results
     tuple val(meta), path("*pypgx_output/cnv-calls.zip"), emit: cnv_calls, optional: true
     tuple val(meta), path("*pypgx_output/consolidated-variants.zip"), emit: consolidated_variants
-    path("versions.yml"), emit: versions
+    path ("versions.yml"), emit: versions
 
     when:
     task.ext.when == null || task.ext.when

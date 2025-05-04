@@ -1,5 +1,5 @@
 process SPACERANGER_MKGTF {
-    tag "$gtf"
+    tag "${gtf}"
     label 'process_low'
 
     container "nf-core/spaceranger:3.1.3"
@@ -8,8 +8,8 @@ process SPACERANGER_MKGTF {
     path gtf
 
     output:
-    path "*.gtf"         , emit: gtf
-    path "versions.yml"  , emit: versions
+    path "*.gtf", emit: gtf
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -17,16 +17,16 @@ process SPACERANGER_MKGTF {
     script:
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
-        error "SPACERANGER_MKGTF module does not support Conda. Please use Docker / Singularity / Podman instead."
+        error("SPACERANGER_MKGTF module does not support Conda. Please use Docker / Singularity / Podman instead.")
     }
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${gtf.baseName}.filtered"
     """
     spaceranger \\
         mkgtf \\
-        $gtf \\
+        ${gtf} \\
         ${prefix}.gtf \\
-        $args
+        ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -37,7 +37,7 @@ process SPACERANGER_MKGTF {
     stub:
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
-        error "SPACERANGER_COUNT module does not support Conda. Please use Docker / Singularity / Podman instead."
+        error("SPACERANGER_COUNT module does not support Conda. Please use Docker / Singularity / Podman instead.")
     }
     def prefix = task.ext.prefix ?: "${gtf.baseName}.filtered"
     """

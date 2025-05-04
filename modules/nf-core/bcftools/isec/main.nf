@@ -1,29 +1,29 @@
 process BCFTOOLS_ISEC {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5a/5acacb55c52bec97c61fd34ffa8721fce82ce823005793592e2a80bf71632cd0/data':
-        'community.wave.seqera.io/library/bcftools:1.21--4335bec1d7b44d11' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5a/5acacb55c52bec97c61fd34ffa8721fce82ce823005793592e2a80bf71632cd0/data'
+        : 'community.wave.seqera.io/library/bcftools:1.21--4335bec1d7b44d11'}"
 
     input:
     tuple val(meta), path(vcfs), path(tbis)
 
     output:
     tuple val(meta), path("${prefix}", type: "dir"), emit: results
-    path  "versions.yml"                           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args   ?: ''
-    prefix   = task.ext.prefix ?: "${meta.id}"
+    def args = task.ext.args ?: ''
+    prefix = task.ext.prefix ?: "${meta.id}"
     """
     bcftools isec  \\
-        $args \\
-        -p $prefix \\
+        ${args} \\
+        -p ${prefix} \\
         ${vcfs}
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -32,8 +32,8 @@ process BCFTOOLS_ISEC {
     """
 
     stub:
-    def args = task.ext.args   ?: ''
-    prefix   = task.ext.prefix ?: "${meta.id}"
+    def args = task.ext.args ?: ''
+    prefix = task.ext.prefix ?: "${meta.id}"
     """
     mkdir ${prefix}
     touch ${prefix}/README.txt

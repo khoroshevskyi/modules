@@ -2,19 +2,19 @@ process NGSCHECKMATE_VAFNCM {
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ngscheckmate:1.0.1--py312pl5321h577a1d6_4':
-        'biocontainers/ngscheckmate:1.0.1--py312pl5321h577a1d6_4' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/ngscheckmate:1.0.1--py312pl5321h577a1d6_4'
+        : 'biocontainers/ngscheckmate:1.0.1--py312pl5321h577a1d6_4'}"
 
     input:
     tuple val(meta), path(vafs)
 
     output:
-    tuple val(meta), path("*.pdf")             , emit: pdf, optional: true
-    tuple val(meta), path("*_corr_matrix.txt") , emit: corr_matrix
-    tuple val(meta), path("*_all.txt")         , emit: all
-    tuple val(meta), path("*_matched.txt")     , emit: matched
-    path "versions.yml"                        , emit: versions
+    tuple val(meta), path("*.pdf"), emit: pdf, optional: true
+    tuple val(meta), path("*_corr_matrix.txt"), emit: corr_matrix
+    tuple val(meta), path("*_all.txt"), emit: all
+    tuple val(meta), path("*_matched.txt"), emit: matched
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -26,7 +26,7 @@ process NGSCHECKMATE_VAFNCM {
     """
     # tool has a bug where it misses the final file, so add a dummy one.
     cp ${vafs[0]} zzzzzz.vaf
-    vaf_ncm.py -I . -O . -N ${prefix} $args
+    vaf_ncm.py -I . -O . -N ${prefix} ${args}
 
     # remove the existence of the dummy file
     rm zzzzzz.vaf

@@ -25,8 +25,7 @@ workflow ARCHIVE_EXTRACT {
     UNTAR(archive_to_extract.tar)
     UNZIP(archive_to_extract.zip)
 
-    extracted = Channel
-        .empty()
+    extracted = Channel.empty()
         .mix(
             GUNZIP.out.gunzip,
             UNTAR.out.untar,

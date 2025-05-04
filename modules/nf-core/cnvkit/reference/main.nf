@@ -1,11 +1,11 @@
 process CNVKIT_REFERENCE {
-    tag "$fasta"
+    tag "${fasta}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/cnvkit:0.9.11--pyhdfd78af_0':
-        'biocontainers/cnvkit:0.9.11--pyhdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/cnvkit:0.9.11--pyhdfd78af_0'
+        : 'biocontainers/cnvkit:0.9.11--pyhdfd78af_0'}"
 
     input:
     path fasta
@@ -13,7 +13,7 @@ process CNVKIT_REFERENCE {
     path antitargets
 
     output:
-    path "*.cnn"       , emit: cnn
+    path "*.cnn", emit: cnn
     path "versions.yml", emit: versions
 
     when:
@@ -26,11 +26,11 @@ process CNVKIT_REFERENCE {
     """
     cnvkit.py \\
         reference \\
-        --fasta $fasta \\
-        --targets $targets \\
-        --antitargets $antitargets \\
+        --fasta ${fasta} \\
+        --targets ${targets} \\
+        --antitargets ${antitargets} \\
         --output ${prefix}.reference.cnn \\
-        $args
+        ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

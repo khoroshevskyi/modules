@@ -6,12 +6,12 @@ include { SCRAMBLE_CLUSTERANALYSIS   } from '../../../../../modules/nf-core/scra
 include { SCRAMBLE_CLUSTERIDENTIFIER } from '../../../../../modules/nf-core/scramble/clusteridentifier/main.nf'
 
 workflow test_scramble_clusteranalysis {
-    
+
     input = [
-        [ id:'test', single_end:false ], // meta map
-        file(params.test_data['homo_sapiens']['scramble']['bam'], checkIfExists: true),   
-        file(params.test_data['homo_sapiens']['scramble']['bam_bai'], checkIfExists: true),   
-        []
+        [id: 'test', single_end: false],
+        file(params.test_data['homo_sapiens']['scramble']['bam'], checkIfExists: true),
+        file(params.test_data['homo_sapiens']['scramble']['bam_bai'], checkIfExists: true),
+        [],
     ]
 
     fasta = []
@@ -19,23 +19,23 @@ workflow test_scramble_clusteranalysis {
 
     SCRAMBLE_CLUSTERIDENTIFIER(
         input,
-        fasta
+        fasta,
     )
 
-    SCRAMBLE_CLUSTERANALYSIS (
+    SCRAMBLE_CLUSTERANALYSIS(
         SCRAMBLE_CLUSTERIDENTIFIER.out.clusters,
         fasta,
-        mei_ref
+        mei_ref,
     )
 }
 
 workflow test_scramble_clusteranalysis_fasta {
-    
+
     input = [
-        [ id:'test', single_end:false ], // meta map
-        file(params.test_data['homo_sapiens']['scramble']['cram'], checkIfExists: true),   
-        file(params.test_data['homo_sapiens']['scramble']['cram_crai'], checkIfExists: true),   
-        []
+        [id: 'test', single_end: false],
+        file(params.test_data['homo_sapiens']['scramble']['cram'], checkIfExists: true),
+        file(params.test_data['homo_sapiens']['scramble']['cram_crai'], checkIfExists: true),
+        [],
     ]
 
     fasta = file(params.test_data['homo_sapiens']['scramble']['fasta'], checkIfExists: true)
@@ -43,12 +43,12 @@ workflow test_scramble_clusteranalysis_fasta {
 
     SCRAMBLE_CLUSTERIDENTIFIER(
         input,
-        fasta
+        fasta,
     )
 
-    SCRAMBLE_CLUSTERANALYSIS (
+    SCRAMBLE_CLUSTERANALYSIS(
         SCRAMBLE_CLUSTERIDENTIFIER.out.clusters,
         fasta,
-        mei_ref
+        mei_ref,
     )
 }

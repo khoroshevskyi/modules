@@ -1,30 +1,30 @@
 process JASMINESV {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/jasminesv:1.1.5--hdfd78af_0':
-        'biocontainers/jasminesv:1.1.5--hdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/jasminesv:1.1.5--hdfd78af_0'
+        : 'biocontainers/jasminesv:1.1.5--hdfd78af_0'}"
 
     input:
-    tuple val(meta), path(vcfs, arity:'1..*'), path(bams), path(sample_dists)
+    tuple val(meta), path(vcfs, arity: '1..*'), path(bams), path(sample_dists)
     tuple val(meta2), path(fasta)
     tuple val(meta3), path(fasta_fai)
-    path(chr_norm)
+    path chr_norm
 
     output:
-    tuple val(meta), path("*.vcf.gz")       , emit: vcf
-    path "versions.yml"                     , emit: versions
+    tuple val(meta), path("*.vcf.gz"), emit: vcf
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args    = task.ext.args ?: ''
-    def args2   = task.ext.args2 ?: ''
-    def args3   = task.ext.args3 ?: ''
-    def prefix  = task.ext.prefix ?: "${meta.id}"
+    def args = task.ext.args ?: ''
+    def args2 = task.ext.args2 ?: ''
+    def args3 = task.ext.args3 ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
 
     def make_bam = bams ? "ls *.bam > bams.txt" : ""
     def bam_argument = bams ? "bam_list=bams.txt" : ""
@@ -36,7 +36,9 @@ process JASMINESV {
     def unzip_inputs = vcfs.collect { it.name.endsWith(".vcf.gz") ? "    bgzip -d --threads ${task.cpus} ${args2} ${it}" : "" }.join("\n")
 
     vcfs.each { vcf ->
-        if ("$vcf".startsWith("${prefix}.vcf")) error "Input and output names are the same, set prefix in module configuration to disambiguate!"
+        if ("${vcf}".startsWith("${prefix}.vcf")) {
+            error("Input and output names are the same, set prefix in module configuration to disambiguate!")
+        }
     }
 
     """
@@ -72,10 +74,12 @@ process JASMINESV {
     """
 
     stub:
-    def prefix  = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
 
     vcfs.each { vcf ->
-        if ("$vcf".startsWith("${prefix}.vcf")) error "Input and output names are the same, set prefix in module configuration to disambiguate!"
+        if ("${vcf}".startsWith("${prefix}.vcf")) {
+            error("Input and output names are the same, set prefix in module configuration to disambiguate!")
+        }
     }
 
     """

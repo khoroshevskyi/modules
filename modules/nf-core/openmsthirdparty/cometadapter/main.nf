@@ -1,19 +1,19 @@
 process OPENMSTHIRDPARTY_COMETADAPTER {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/openms-thirdparty:3.3.0--h9ee0642_8' :
-        'biocontainers/openms-thirdparty:3.3.0--h9ee0642_8' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/openms-thirdparty:3.3.0--h9ee0642_8'
+        : 'biocontainers/openms-thirdparty:3.3.0--h9ee0642_8'}"
 
     input:
     tuple val(meta), path(mzml), path(fasta)
 
     output:
     tuple val(meta), path("*.idXML"), emit: idxml
-    tuple val(meta), path("*.tsv")  , emit: pin, optional: true
-    path "versions.yml"             , emit: versions
+    tuple val(meta), path("*.tsv"), emit: pin, optional: true
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,11 +24,11 @@ process OPENMSTHIRDPARTY_COMETADAPTER {
 
     """
     CometAdapter \\
-        -in $mzml \\
-        -database $fasta \\
+        -in ${mzml} \\
+        -database ${fasta} \\
         -out ${prefix}.idXML \\
-        -threads $task.cpus \\
-        $args
+        -threads ${task.cpus} \\
+        ${args}
 
 
     cat <<-END_VERSIONS > versions.yml

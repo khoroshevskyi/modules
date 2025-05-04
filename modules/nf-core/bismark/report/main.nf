@@ -1,18 +1,18 @@
 process BISMARK_REPORT {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bismark:0.24.2--hdfd78af_0' :
-        'biocontainers/bismark:0.24.2--hdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/bismark:0.24.2--hdfd78af_0'
+        : 'biocontainers/bismark:0.24.2--hdfd78af_0'}"
 
     input:
     tuple val(meta), path(align_report), path(dedup_report), path(splitting_report), path(mbias)
 
     output:
     tuple val(meta), path("*report.{html,txt}"), emit: report
-    path  "versions.yml"                       , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

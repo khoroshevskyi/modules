@@ -1,18 +1,18 @@
 process COOLER_ZOOMIFY {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/cooler:0.9.2--pyh7cba7a3_0' :
-        'biocontainers/cooler:0.9.2--pyh7cba7a3_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/cooler:0.9.2--pyh7cba7a3_0'
+        : 'biocontainers/cooler:0.9.2--pyh7cba7a3_0'}"
 
     input:
     tuple val(meta), path(cool)
 
     output:
     tuple val(meta), path("*.mcool"), emit: mcool
-    path "versions.yml"             , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -22,10 +22,10 @@ process COOLER_ZOOMIFY {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     cooler zoomify \\
-        $args \\
-        -n $task.cpus \\
+        ${args} \\
+        -n ${task.cpus} \\
         -o ${prefix}.mcool \\
-        $cool
+        ${cool}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

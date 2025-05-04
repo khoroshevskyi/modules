@@ -1,27 +1,27 @@
 process MGIKIT_DEMULTIPLEX {
-    tag {"$run_id"}
+    tag { "${run_id}" }
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
 
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mgikit:1.0.0--h3ab6199_0' :
-        'biocontainers/mgikit:1.0.0--h3ab6199_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/mgikit:1.0.0--h3ab6199_0'
+        : 'biocontainers/mgikit:1.0.0--h3ab6199_0'}"
 
     input:
     tuple val(meta), path(samplesheet), path(run_dir)
 
     output:
-    tuple val(meta), path("${prefix}/*.fastq.gz")                                                    , emit: fastq
-    tuple val(meta), path("${prefix}_undetermined/*.fastq.gz")                                       , optional:true, emit: undetermined
-    tuple val(meta), path("${prefix}_ambiguous/*.fastq.gz")                                          , optional:true, emit: ambiguous
-    tuple val(meta), path("${prefix}/*mgikit.undetermined_barcode*")                                 , emit: undetermined_reports, optional:true
-    tuple val(meta), path("${prefix}/*mgikit.ambiguous_barcode*")                                    , emit: ambiguous_reports, optional:true
-    tuple val(meta), path("${prefix}/*mgikit.general")                                               , emit: general_info_reports
-    tuple val(meta), path("${prefix}/*mgikit.info")                                                  , emit: index_reports
-    tuple val(meta), path("${prefix}/*mgikit.sample_stats")                                          , emit: sample_stat_reports
-    tuple val(meta), path("${prefix}/*mgikit.{info,general,ambiguous_barcode,undetermined_barcode}") , emit: qc_reports
-    path("versions.yml")                                                                             , emit: versions
+    tuple val(meta), path("${prefix}/*.fastq.gz"), emit: fastq
+    tuple val(meta), path("${prefix}_undetermined/*.fastq.gz"), optional: true, emit: undetermined
+    tuple val(meta), path("${prefix}_ambiguous/*.fastq.gz"), optional: true, emit: ambiguous
+    tuple val(meta), path("${prefix}/*mgikit.undetermined_barcode*"), emit: undetermined_reports, optional: true
+    tuple val(meta), path("${prefix}/*mgikit.ambiguous_barcode*"), emit: ambiguous_reports, optional: true
+    tuple val(meta), path("${prefix}/*mgikit.general"), emit: general_info_reports
+    tuple val(meta), path("${prefix}/*mgikit.info"), emit: index_reports
+    tuple val(meta), path("${prefix}/*mgikit.sample_stats"), emit: sample_stat_reports
+    tuple val(meta), path("${prefix}/*mgikit.{info,general,ambiguous_barcode,undetermined_barcode}"), emit: qc_reports
+    path ("versions.yml"), emit: versions
 
     when:
     task.ext.when == null || task.ext.when

@@ -1,11 +1,11 @@
 process NGSBITS_SAMPLEGENDER {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ngs-bits:2024_11--py312hd80e9a6_0':
-        'biocontainers/ngs-bits:2024_11--py312hd80e9a6_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/ngs-bits:2024_11--py312hd80e9a6_0'
+        : 'biocontainers/ngs-bits:2024_11--py312hd80e9a6_0'}"
 
     input:
     tuple val(meta), path(bam), path(bai)
@@ -15,7 +15,7 @@ process NGSBITS_SAMPLEGENDER {
 
     output:
     tuple val(meta), path("*.tsv"), emit: tsv
-    path "versions.yml"           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

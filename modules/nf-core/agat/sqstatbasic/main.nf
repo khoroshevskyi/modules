@@ -1,18 +1,18 @@
 process AGAT_SQSTATBASIC {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/agat:1.4.2--pl5321hdfd78af_0' :
-        'biocontainers/agat:1.4.2--pl5321hdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/agat:1.4.2--pl5321hdfd78af_0'
+        : 'biocontainers/agat:1.4.2--pl5321hdfd78af_0'}"
 
     input:
     tuple val(meta), path(gff)
 
     output:
     tuple val(meta), path("*.txt"), emit: stats_txt
-    path "versions.yml"           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -22,9 +22,9 @@ process AGAT_SQSTATBASIC {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     agat_sq_stat_basic.pl \\
-        -i $gff \\
+        -i ${gff} \\
         --output ${prefix}.stats.txt \\
-        $args
+        ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

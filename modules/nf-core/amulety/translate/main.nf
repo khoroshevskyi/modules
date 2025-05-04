@@ -1,19 +1,19 @@
 process AMULETY_TRANSLATE {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-92ebbfc09fc136b8e201cb187cd9567ba335d439:459e6ebe51fb2818cb6de807f2c5fa99599b1214-0':
-        'biocontainers/mulled-v2-92ebbfc09fc136b8e201cb187cd9567ba335d439:459e6ebe51fb2818cb6de807f2c5fa99599b1214-0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/mulled-v2-92ebbfc09fc136b8e201cb187cd9567ba335d439:459e6ebe51fb2818cb6de807f2c5fa99599b1214-0'
+        : 'biocontainers/mulled-v2-92ebbfc09fc136b8e201cb187cd9567ba335d439:459e6ebe51fb2818cb6de807f2c5fa99599b1214-0'}"
 
     input:
     tuple val(meta), path(tsv)
-    path(reference_igblast) // igblast references
+    path reference_igblast
 
     output:
-    tuple val(meta), path("*_translated.tsv") , emit: repertoire_translated
-    path "versions.yml" , emit: versions
+    tuple val(meta), path("*_translated.tsv"), emit: repertoire_translated
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,7 +23,7 @@ process AMULETY_TRANSLATE {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     export IGDATA=${reference_igblast}
-    amulety translate-igblast $tsv . ${reference_igblast}
+    amulety translate-igblast ${tsv} . ${reference_igblast}
 
     mv *_translated.tsv ${prefix}_translated.tsv
 

@@ -1,23 +1,23 @@
 process PICARD_EXTRACTFINGERPRINT {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/picard:3.3.0--hdfd78af_0' :
-        'biocontainers/picard:3.3.0--hdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/picard:3.3.0--hdfd78af_0'
+        : 'biocontainers/picard:3.3.0--hdfd78af_0'}"
 
     input:
     tuple val(meta), path(bam), path(bai)
-    path  haplotype_map
-    path  fasta
-    path  fasta_fai
-    path  sequence_dictionary
+    path haplotype_map
+    path fasta
+    path fasta_fai
+    path sequence_dictionary
 
     output:
-    tuple val(meta), path("*.vcf.gz")    , emit: vcf
+    tuple val(meta), path("*.vcf.gz"), emit: vcf
     tuple val(meta), path("*.vcf.gz.tbi"), emit: tbi
-    path "versions.yml"                  , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -31,9 +31,10 @@ process PICARD_EXTRACTFINGERPRINT {
 
     def avail_mem = 3072
     if (!task.memory) {
-        log.info '[PICARD ExtractFingerprint] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
-    } else {
-        avail_mem = (task.memory.mega*0.8).intValue()
+        log.info('[PICARD ExtractFingerprint] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.')
+    }
+    else {
+        avail_mem = (task.memory.mega * 0.8).intValue()
     }
 
     """
@@ -44,7 +45,7 @@ process PICARD_EXTRACTFINGERPRINT {
         --HAPLOTYPE_MAP ${haplotype_map} \\
         --OUTPUT ${prefix}.vcf.gz \\
         ${reference} \\
-        $args
+        ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

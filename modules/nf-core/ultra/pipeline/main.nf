@@ -1,11 +1,11 @@
 process ULTRA_PIPELINE {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ultra_bioinformatics:0.1--pyh7cba7a3_1':
-        'biocontainers/ultra_bioinformatics:0.1--pyh7cba7a3_1' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/ultra_bioinformatics:0.1--pyh7cba7a3_1'
+        : 'biocontainers/ultra_bioinformatics:0.1--pyh7cba7a3_1'}"
 
     input:
     tuple val(meta), path(reads)
@@ -14,7 +14,7 @@ process ULTRA_PIPELINE {
 
     output:
     tuple val(meta), path("*.sam"), emit: sam
-    path "versions.yml"           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,12 +25,12 @@ process ULTRA_PIPELINE {
     """
     uLTRA \\
         pipeline \\
-        --t $task.cpus \\
-        --prefix $prefix \\
-        $args \\
-        $genome \\
-        $gtf \\
-        $reads \\
+        --t ${task.cpus} \\
+        --prefix ${prefix} \\
+        ${args} \\
+        ${genome} \\
+        ${gtf} \\
+        ${reads} \\
         ./
 
     cat <<-END_VERSIONS > versions.yml
@@ -49,6 +49,4 @@ process ULTRA_PIPELINE {
         ultra: \$( uLTRA --version|sed 's/uLTRA //g' )
     END_VERSIONS
     """
-
-
 }

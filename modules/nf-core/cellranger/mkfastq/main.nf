@@ -1,5 +1,5 @@
 process CELLRANGER_MKFASTQ {
-    tag {"$meta.lane" ? "$meta.id"+"."+"$meta.lane" : "$meta.id" }
+    tag { "${meta.lane}" ? "${meta.id}" + "." + "${meta.lane}" : "${meta.id}" }
     label 'process_medium'
 
     container "nf-core/cellrangermkfastq:8.0.0"
@@ -8,12 +8,12 @@ process CELLRANGER_MKFASTQ {
     tuple val(meta), path(csv), path(bcl)
 
     output:
-    tuple val(meta), path("*_outs/outs/fastq_path/**/*.fastq.gz")          , emit: fastq
-    tuple val(meta), path("*_outs/outs/fastq_path/Undetermined*.fastq.gz") , optional:true, emit: undetermined_fastq
-    tuple val(meta), path("*_outs/outs/fastq_path/Reports")                , optional:true, emit: reports
-    tuple val(meta), path("*_outs/outs/fastq_path/Stats")                  , optional:true, emit: stats
-    tuple val(meta), path("*_outs/outs/interop_path/*.bin")                , emit: interop
-    path "versions.yml"                                                    , emit: versions
+    tuple val(meta), path("*_outs/outs/fastq_path/**/*.fastq.gz"), emit: fastq
+    tuple val(meta), path("*_outs/outs/fastq_path/Undetermined*.fastq.gz"), optional: true, emit: undetermined_fastq
+    tuple val(meta), path("*_outs/outs/fastq_path/Reports"), optional: true, emit: reports
+    tuple val(meta), path("*_outs/outs/fastq_path/Stats"), optional: true, emit: stats
+    tuple val(meta), path("*_outs/outs/interop_path/*.bin"), emit: interop
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,19 +21,20 @@ process CELLRANGER_MKFASTQ {
     script:
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
-        error "CELLRANGER_MKFASTQ module does not support Conda. Please use Docker / Singularity / Podman instead."
+        error("CELLRANGER_MKFASTQ module does not support Conda. Please use Docker / Singularity / Podman instead.")
     }
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}" //run_dir (bcl) and id must be different because a folder is created with the id value
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    //run_dir (bcl) and id must be different because a folder is created with the id value
     """
     cellranger \\
         mkfastq \\
         --id=${prefix}_outs \\
-        --run=$bcl \\
-        --csv=$csv \\
+        --run=${bcl} \\
+        --csv=${csv} \\
         --localcores=${task.cpus} \\
         --localmem=${task.memory.toGiga()} \\
-        $args
+        ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -44,7 +45,7 @@ process CELLRANGER_MKFASTQ {
     stub:
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
-        error "CELLRANGER_MKFASTQ module does not support Conda. Please use Docker / Singularity / Podman instead."
+        error("CELLRANGER_MKFASTQ module does not support Conda. Please use Docker / Singularity / Podman instead.")
     }
     def prefix = task.ext.prefix ?: "${meta.id}"
     """

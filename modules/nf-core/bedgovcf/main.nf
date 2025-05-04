@@ -1,11 +1,11 @@
 process BEDGOVCF {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bedgovcf:0.1.1--h9ee0642_1':
-        'biocontainers/bedgovcf:0.1.1--h9ee0642_1' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/bedgovcf:0.1.1--h9ee0642_1'
+        : 'biocontainers/bedgovcf:0.1.1--h9ee0642_1'}"
 
     input:
     tuple val(meta), path(bed), path(config)
@@ -13,7 +13,7 @@ process BEDGOVCF {
 
     output:
     tuple val(meta), path("*.vcf.gz"), emit: vcf
-    path "versions.yml"              , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,11 +24,11 @@ process BEDGOVCF {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     bedgovcf \\
-        $args \\
-        --bed $bed \\
-        --fai $fai \\
-        --config $config \\
-        | bgzip --stdout --threads $task.cpus $args2 > ${prefix}.vcf.gz
+        ${args} \\
+        --bed ${bed} \\
+        --fai ${fai} \\
+        --config ${config} \\
+        | bgzip --stdout --threads ${task.cpus} ${args2} > ${prefix}.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

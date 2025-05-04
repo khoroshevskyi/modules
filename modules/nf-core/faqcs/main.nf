@@ -1,24 +1,24 @@
 process FAQCS {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/faqcs:2.10--r41h9a82719_2' :
-        'biocontainers/faqcs:2.10--r41h9a82719_2' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/faqcs:2.10--r41h9a82719_2'
+        : 'biocontainers/faqcs:2.10--r41h9a82719_2'}"
 
     input:
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path('*.trimmed.fastq.gz')           , emit: reads         , optional: true
-    tuple val(meta), path('*.stats.txt')                  , emit: stats         , optional: true
-    tuple val(meta), path('./debug')                      , emit: debug         , optional: true
-    tuple val(meta), path('*_qc_report.pdf')              , emit: statspdf      , optional: true
-    tuple val(meta), path('*.discard.fastq.gz')           , emit: reads_fail    , optional: true
-    tuple val(meta), path('*.trimmed.unpaired.fastq.gz')  , emit: reads_unpaired, optional: true
-    tuple val(meta), path('*.log')                        , emit: log
-    path "versions.yml"                                   , emit: versions
+    tuple val(meta), path('*.trimmed.fastq.gz'), emit: reads, optional: true
+    tuple val(meta), path('*.stats.txt'), emit: stats, optional: true
+    tuple val(meta), path('./debug'), emit: debug, optional: true
+    tuple val(meta), path('*_qc_report.pdf'), emit: statspdf, optional: true
+    tuple val(meta), path('*.discard.fastq.gz'), emit: reads_fail, optional: true
+    tuple val(meta), path('*.trimmed.unpaired.fastq.gz'), emit: reads_unpaired, optional: true
+    tuple val(meta), path('*.log'), emit: log
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,13 +29,13 @@ process FAQCS {
     def prefix = task.ext.prefix ?: "${meta.id}"
     if (meta.single_end) {
         """
-        [ ! -f  ${prefix}.fastq.gz ] && ln -s $reads ${prefix}.fastq.gz
+        [ ! -f  ${prefix}.fastq.gz ] && ln -s ${reads} ${prefix}.fastq.gz
         FaQCs \\
             -d . \\
             -u ${prefix}.fastq.gz \\
             --prefix ${prefix} \\
-            -t $task.cpus \\
-            $args \\
+            -t ${task.cpus} \\
+            ${args} \\
             2> >(tee ${prefix}.log >&2)
 
 
@@ -59,7 +59,8 @@ process FAQCS {
             faqcs: \$(echo \$(FaQCs --version 2>&1) | sed 's/^.*Version: //;' )
         END_VERSIONS
         """
-    } else {
+    }
+    else {
         """
         [ ! -f  ${prefix}_1.fastq.gz ] && ln -s ${reads[0]} ${prefix}_1.fastq.gz
         [ ! -f  ${prefix}_2.fastq.gz ] && ln -s ${reads[1]} ${prefix}_2.fastq.gz
@@ -68,8 +69,8 @@ process FAQCS {
             -1 ${prefix}_1.fastq.gz \\
             -2 ${prefix}_2.fastq.gz \\
             --prefix ${meta.id} \\
-            -t $task.cpus \\
-            $args \\
+            -t ${task.cpus} \\
+            ${args} \\
             2> >(tee ${prefix}.log >&2)
 
         # Unpaired

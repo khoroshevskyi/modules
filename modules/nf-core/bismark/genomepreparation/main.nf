@@ -1,18 +1,18 @@
 process BISMARK_GENOMEPREPARATION {
-    tag "$fasta"
+    tag "${fasta}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bismark:0.24.2--hdfd78af_0' :
-        'biocontainers/bismark:0.24.2--hdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/bismark:0.24.2--hdfd78af_0'
+        : 'biocontainers/bismark:0.24.2--hdfd78af_0'}"
 
     input:
-    tuple val(meta), path(fasta, name:"BismarkIndex/")
+    tuple val(meta), path(fasta, name: "BismarkIndex/")
 
     output:
     tuple val(meta), path("BismarkIndex"), emit: index
-    path "versions.yml"                  , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -33,7 +33,7 @@ process BISMARK_GENOMEPREPARATION {
     stub:
     def args = task.ext.args ?: ''
     """
-    rm $fasta
+    rm ${fasta}
 
     mkdir -p BismarkIndex/Bisulfite_Genome/CT_conversion
     touch BismarkIndex/Bisulfite_Genome/CT_conversion/BS_CT.1.bt2

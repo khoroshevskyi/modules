@@ -1,25 +1,25 @@
 process ADAPTERREMOVAL {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/adapterremoval:2.3.2--hb7ba0dd_0' :
-        'biocontainers/adapterremoval:2.3.2--hb7ba0dd_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/adapterremoval:2.3.2--hb7ba0dd_0'
+        : 'biocontainers/adapterremoval:2.3.2--hb7ba0dd_0'}"
 
     input:
     tuple val(meta), path(reads)
-    path(adapterlist)
+    path adapterlist
 
     output:
-    tuple val(meta), path("${prefix}.truncated.fastq.gz")            , optional: true, emit: singles_truncated
-    tuple val(meta), path("${prefix}.discarded.fastq.gz")            , optional: true, emit: discarded
-    tuple val(meta), path("${prefix}.pair{1,2}.truncated.fastq.gz")  , optional: true, emit: paired_truncated
-    tuple val(meta), path("${prefix}.collapsed.fastq.gz")            , optional: true, emit: collapsed
-    tuple val(meta), path("${prefix}.collapsed.truncated.fastq.gz")  , optional: true, emit: collapsed_truncated
-    tuple val(meta), path("${prefix}.paired.fastq.gz")               , optional: true, emit: paired_interleaved
-    tuple val(meta), path('*.settings')                              , emit: settings
-    path "versions.yml"                                              , emit: versions
+    tuple val(meta), path("${prefix}.truncated.fastq.gz"), optional: true, emit: singles_truncated
+    tuple val(meta), path("${prefix}.discarded.fastq.gz"), optional: true, emit: discarded
+    tuple val(meta), path("${prefix}.pair{1,2}.truncated.fastq.gz"), optional: true, emit: paired_truncated
+    tuple val(meta), path("${prefix}.collapsed.fastq.gz"), optional: true, emit: collapsed
+    tuple val(meta), path("${prefix}.collapsed.truncated.fastq.gz"), optional: true, emit: collapsed_truncated
+    tuple val(meta), path("${prefix}.paired.fastq.gz"), optional: true, emit: paired_interleaved
+    tuple val(meta), path('*.settings'), emit: settings
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -32,9 +32,9 @@ process ADAPTERREMOVAL {
     if (meta.single_end) {
         """
         AdapterRemoval  \\
-            --file1 $reads \\
-            $args \\
-            $list \\
+            --file1 ${reads} \\
+            ${args} \\
+            ${list} \\
             --basename ${prefix} \\
             --threads ${task.cpus} \\
             --seed 42 \\
@@ -55,15 +55,16 @@ process ADAPTERREMOVAL {
             adapterremoval: \$(AdapterRemoval --version 2>&1 | sed -e "s/AdapterRemoval ver. //g")
         END_VERSIONS
         """
-    } else {
+    }
+    else {
         """
         AdapterRemoval  \\
             --file1 ${reads[0]} \\
             --file2 ${reads[1]} \\
-            $args \\
-            $list \\
+            ${args} \\
+            ${list} \\
             --basename ${prefix} \\
-            --threads $task.cpus \\
+            --threads ${task.cpus} \\
             --seed 42 \\
             --gzip
 
@@ -88,5 +89,4 @@ process ADAPTERREMOVAL {
         END_VERSIONS
         """
     }
-
 }

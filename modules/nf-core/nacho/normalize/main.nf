@@ -6,13 +6,13 @@ process NACHO_NORMALIZE {
     container 'community.wave.seqera.io/library/r-dplyr_r-fs_r-ggplot2_r-nacho_pruned:033bc017f5f36b6d'
 
     input:
-    tuple val(meta) , path(rcc_files, stageAs: "input/*")
+    tuple val(meta), path(rcc_files, stageAs: "input/*")
     tuple val(meta2), path(sample_sheet)
 
     output:
-    tuple val(meta), path("normalized_counts.tsv")          , emit: normalized_counts
+    tuple val(meta), path("normalized_counts.tsv"), emit: normalized_counts
     tuple val(meta), path("normalized_counts_wo_HKnorm.tsv"), emit: normalized_counts_wo_HK
-    path "versions.yml"                                     , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -22,7 +22,7 @@ process NACHO_NORMALIZE {
     """
     nacho_norm.R \\
         --input_rcc_path input \\
-        $args \\
+        ${args} \\
         --input_samplesheet ${sample_sheet}
 
     cat <<-END_VERSIONS > versions.yml

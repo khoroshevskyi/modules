@@ -1,11 +1,11 @@
 process SEQUENCETOOLS_PILEUPCALLER {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/sequencetools:1.5.2--hec16e2b_1':
-        'biocontainers/sequencetools:1.5.2--hec16e2b_1' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/sequencetools:1.5.2--hec16e2b_1'
+        : 'biocontainers/sequencetools:1.5.2--hec16e2b_1'}"
 
     input:
     tuple val(meta), path(mpileup)
@@ -13,10 +13,10 @@ process SEQUENCETOOLS_PILEUPCALLER {
     path sample_names_fn
 
     output:
-    tuple val(meta), path("*.geno"), path("*.snp"), path("*.ind")   , optional:true, emit: eigenstrat
-    tuple val(meta), path("*.bed"), path("*.bim"), path("*.fam")    , optional:true, emit: plink
-    tuple val(meta), path("*.freqsum.gz")                           , optional:true, emit: freqsum
-    path "versions.yml"                                                            , emit: versions
+    tuple val(meta), path("*.geno"), path("*.snp"), path("*.ind"), optional: true, emit: eigenstrat
+    tuple val(meta), path("*.bed"), path("*.bim"), path("*.fam"), optional: true, emit: plink
+    tuple val(meta), path("*.freqsum.gz"), optional: true, emit: freqsum
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

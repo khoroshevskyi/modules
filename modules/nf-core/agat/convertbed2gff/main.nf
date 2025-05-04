@@ -1,18 +1,18 @@
 process AGAT_CONVERTBED2GFF {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/agat:1.4.2--pl5321hdfd78af_0' :
-        'biocontainers/agat:1.4.2--pl5321hdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/agat:1.4.2--pl5321hdfd78af_0'
+        : 'biocontainers/agat:1.4.2--pl5321hdfd78af_0'}"
 
     input:
     tuple val(meta), path(bed)
 
     output:
-    tuple val(meta), path("*.gff")  , emit: gff
-    path "versions.yml"             , emit: versions
+    tuple val(meta), path("*.gff"), emit: gff
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -22,9 +22,9 @@ process AGAT_CONVERTBED2GFF {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     agat_convert_bed2gff.pl \\
-        --bed $bed \\
+        --bed ${bed} \\
         --output ${prefix}.gff \\
-        $args
+        ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -1,11 +1,11 @@
 process COOLER_CLOAD {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/cooler:0.10.3--pyhdfd78af_0' :
-        'biocontainers/cooler:0.10.3--pyhdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/cooler:0.10.3--pyhdfd78af_0'
+        : 'biocontainers/cooler:0.10.3--pyhdfd78af_0'}"
 
     input:
     tuple val(meta), path(pairs), path(index), val(cool_bin)
@@ -13,7 +13,7 @@ process COOLER_CLOAD {
 
     output:
     tuple val(meta), path("*.cool"), val(cool_bin), emit: cool
-    path "versions.yml"                           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,14 +21,14 @@ process COOLER_CLOAD {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def nproc  = args.contains('pairix') || args.contains('tabix')? "--nproc $task.cpus" : ''
+    def nproc = args.contains('pairix') || args.contains('tabix') ? "--nproc ${task.cpus}" : ''
 
     """
     cooler cload \\
-        $args \\
-        $nproc \\
+        ${args} \\
+        ${nproc} \\
         ${chromsizes}:${cool_bin} \\
-        $pairs \\
+        ${pairs} \\
         ${prefix}.cool
 
     cat <<-END_VERSIONS > versions.yml

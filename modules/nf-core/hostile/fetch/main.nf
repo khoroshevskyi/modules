@@ -2,13 +2,13 @@ process HOSTILE_FETCH {
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/hostile:1.1.0--pyhdfd78af_0':
-        'biocontainers/hostile:1.1.0--pyhdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/hostile:1.1.0--pyhdfd78af_0'
+        : 'biocontainers/hostile:1.1.0--pyhdfd78af_0'}"
 
     output:
-    path "reference/"   , emit: reference
-    path "versions.yml" , emit: versions
+    path "reference/", emit: reference
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

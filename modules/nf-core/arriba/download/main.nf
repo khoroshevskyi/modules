@@ -3,19 +3,19 @@ process ARRIBA_DOWNLOAD {
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/arriba:2.4.0--h0033a41_2' :
-        'biocontainers/arriba:2.4.0--h0033a41_2' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/arriba:2.4.0--h0033a41_2'
+        : 'biocontainers/arriba:2.4.0--h0033a41_2'}"
 
     input:
-    val(genome)
+    val genome
 
     output:
-    path "blacklist*${genome}*.tsv.gz"       , emit: blacklist
-    path "cytobands*${genome}*.tsv"          , emit: cytobands
-    path "protein_domains*${genome}*.gff3"   , emit: protein_domains
-    path "known_fusions*${genome}*.tsv.gz"   , emit: known_fusions
-    path "versions.yml"                      , emit: versions
+    path "blacklist*${genome}*.tsv.gz", emit: blacklist
+    path "cytobands*${genome}*.tsv", emit: cytobands
+    path "protein_domains*${genome}*.gff3", emit: protein_domains
+    path "known_fusions*${genome}*.tsv.gz", emit: known_fusions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

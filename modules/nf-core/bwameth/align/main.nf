@@ -1,11 +1,11 @@
 process BWAMETH_ALIGN {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bwameth:0.2.7--pyh7cba7a3_0' :
-        'biocontainers/bwameth:0.2.7--pyh7cba7a3_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/bwameth:0.2.7--pyh7cba7a3_0'
+        : 'biocontainers/bwameth:0.2.7--pyh7cba7a3_0'}"
 
     input:
     tuple val(meta), path(reads)
@@ -14,7 +14,7 @@ process BWAMETH_ALIGN {
 
     output:
     tuple val(meta), path("*.bam"), emit: bam
-    path  "versions.yml"          , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -27,17 +27,17 @@ process BWAMETH_ALIGN {
     """
     # Modify the timestamps so that bwameth doesn't complain about building the index
     # See https://github.com/nf-core/methylseq/pull/217
-    touch -c $index/*
+    touch -c ${index}/*
 
-    ln -sf \$(readlink $fasta) $index/$fasta
+    ln -sf \$(readlink ${fasta}) ${index}/${fasta}
 
     bwameth.py \\
-        $args \\
-        $read_group \\
-        -t $task.cpus \\
-        --reference $index/$fasta \\
-        $reads \\
-        | samtools view $args2 -@ $task.cpus -bhS -o ${prefix}.bam -
+        ${args} \\
+        ${read_group} \\
+        -t ${task.cpus} \\
+        --reference ${index}/${fasta} \\
+        ${reads} \\
+        | samtools view ${args2} -@ ${task.cpus} -bhS -o ${prefix}.bam -
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -3,9 +3,9 @@ process AMPCOMBI2_PARSETABLES {
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ampcombi:2.0.1--pyhdfd78af_0':
-        'biocontainers/ampcombi:2.0.1--pyhdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/ampcombi:2.0.1--pyhdfd78af_0'
+        : 'biocontainers/ampcombi:2.0.1--pyhdfd78af_0'}"
 
     input:
     tuple val(meta), path(amp_input)
@@ -16,18 +16,18 @@ process AMPCOMBI2_PARSETABLES {
     path opt_interproscan
 
     output:
-    tuple val(meta), path("${meta.id}/")                                , emit: sample_dir
-    tuple val(meta), path("${meta.id}/contig_gbks/")                    , emit: contig_gbks  , optional:true
-    tuple val(meta), path("${meta.id}/${meta.id}_mmseqs_matches.tsv")   , emit: db_tsv       , optional:true
-    tuple val(meta), path("${meta.id}/${meta.id}_ampcombi.tsv")         , emit: tsv          , optional:true
-    tuple val(meta), path("${meta.id}/${meta.id}_amp.faa")              , emit: faa          , optional:true
-    tuple val(meta), path("${meta.id}/${meta.id}_ampcombi.log")         , emit: sample_log   , optional:true
-    tuple val(meta), path("Ampcombi_parse_tables.log")                  , emit: full_log     , optional:true
-    tuple val(meta), path("amp_${opt_amp_db}_database/")                , emit: db           , optional:true
-    tuple val(meta), path("amp_${opt_amp_db}_database/*.txt")           , emit: db_txt       , optional:true
-    tuple val(meta), path("amp_${opt_amp_db}_database/*.fasta")         , emit: db_fasta     , optional:true
-    tuple val(meta), path("amp_${opt_amp_db}_database/mmseqs2/")        , emit: db_mmseqs    , optional:true
-    path "versions.yml"                                                 , emit: versions
+    tuple val(meta), path("${meta.id}/"), emit: sample_dir
+    tuple val(meta), path("${meta.id}/contig_gbks/"), emit: contig_gbks, optional: true
+    tuple val(meta), path("${meta.id}/${meta.id}_mmseqs_matches.tsv"), emit: db_tsv, optional: true
+    tuple val(meta), path("${meta.id}/${meta.id}_ampcombi.tsv"), emit: tsv, optional: true
+    tuple val(meta), path("${meta.id}/${meta.id}_amp.faa"), emit: faa, optional: true
+    tuple val(meta), path("${meta.id}/${meta.id}_ampcombi.log"), emit: sample_log, optional: true
+    tuple val(meta), path("Ampcombi_parse_tables.log"), emit: full_log, optional: true
+    tuple val(meta), path("amp_${opt_amp_db}_database/"), emit: db, optional: true
+    tuple val(meta), path("amp_${opt_amp_db}_database/*.txt"), emit: db_txt, optional: true
+    tuple val(meta), path("amp_${opt_amp_db}_database/*.fasta"), emit: db_fasta, optional: true
+    tuple val(meta), path("amp_${opt_amp_db}_database/mmseqs2/"), emit: db_mmseqs, optional: true
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

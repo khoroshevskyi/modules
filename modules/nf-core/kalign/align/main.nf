@@ -1,19 +1,19 @@
 process KALIGN_ALIGN {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-5cd0277547c6b33133225c8ce14c0cf2a4396ea2:0a70b6d89a3e06fbdc4a735461e8b98ff32ee5de-0':
-        'biocontainers/mulled-v2-5cd0277547c6b33133225c8ce14c0cf2a4396ea2:0a70b6d89a3e06fbdc4a735461e8b98ff32ee5de-0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/mulled-v2-5cd0277547c6b33133225c8ce14c0cf2a4396ea2:0a70b6d89a3e06fbdc4a735461e8b98ff32ee5de-0'
+        : 'biocontainers/mulled-v2-5cd0277547c6b33133225c8ce14c0cf2a4396ea2:0a70b6d89a3e06fbdc4a735461e8b98ff32ee5de-0'}"
 
     input:
     tuple val(meta), path(fasta)
-    val(compress)
+    val compress
 
     output:
     tuple val(meta), path("*.aln{.gz,}"), emit: alignment
-    path "versions.yml"                 , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -35,9 +35,9 @@ process KALIGN_ALIGN {
 
     trap 'error_handler' ERR
 
-    unpigz -cdf $fasta | \\
+    unpigz -cdf ${fasta} | \\
     kalign \\
-        $args \\
+        ${args} \\
         -n ${task.cpus} \\
         -o ${write_output}
 

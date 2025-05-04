@@ -1,18 +1,18 @@
 process KRAKEN2_BUILD {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-8706a1dd73c6cc426e12dd4dd33a5e917b3989ae:c8cbdc8ff4101e6745f8ede6eb5261ef98bdaff4-0':
-        'biocontainers/mulled-v2-8706a1dd73c6cc426e12dd4dd33a5e917b3989ae:c8cbdc8ff4101e6745f8ede6eb5261ef98bdaff4-0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/mulled-v2-8706a1dd73c6cc426e12dd4dd33a5e917b3989ae:c8cbdc8ff4101e6745f8ede6eb5261ef98bdaff4-0'
+        : 'biocontainers/mulled-v2-8706a1dd73c6cc426e12dd4dd33a5e917b3989ae:c8cbdc8ff4101e6745f8ede6eb5261ef98bdaff4-0'}"
 
     input:
     tuple val(meta), path(db)
     val cleaning
 
     output:
-    tuple val(meta), path("$prefix"), emit: db
-    path "versions.yml"             , emit: versions
+    tuple val(meta), path("${prefix}"), emit: db
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,10 +24,10 @@ process KRAKEN2_BUILD {
     """
     kraken2-build \\
         --build \\
-        $args \\
+        ${args} \\
         --threads ${task.cpus} \\
         --db ${db}
-    $runclean
+    ${runclean}
     if [[ \$(basename ${db}) != "${prefix}" ]]; then
         mv ${db}/* ${prefix}
     fi
@@ -41,7 +41,7 @@ process KRAKEN2_BUILD {
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
     """
-    mkdir -p "$prefix"
+    mkdir -p "${prefix}"
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

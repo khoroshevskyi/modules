@@ -1,5 +1,5 @@
 process LAST_DOTPLOT {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
@@ -10,13 +10,13 @@ process LAST_DOTPLOT {
     input:
     tuple val(meta), path(maf), path(annot_b)
     tuple val(meta2), path(annot_a)
-    val(format)
-    val(filter)
+    val format
+    val filter
 
     output:
-    tuple val(meta), path("*.gif"), optional:true, emit: gif
-    tuple val(meta), path("*.png"), optional:true, emit: png
-    path "versions.yml"                          , emit: versions
+    tuple val(meta), path("*.gif"), optional: true, emit: gif
+    tuple val(meta), path("*.png"), optional: true, emit: png
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -31,14 +31,14 @@ process LAST_DOTPLOT {
     """
     TTF=/home/runner/conda_pkgs_dir/open-fonts-0.7.0-1/fonts/open-fonts/DejaVuSansMono-Regular.ttf
     [ -e "\$TTF" ] || TTF="/opt/conda/fonts/open-fonts/DejaVuSansMono-Regular.ttf"
-    $input_command $maf |
+    ${input_command} ${maf} |
     last-dotplot \\
         -f \$TTF \\
-        $args \\
-        $annot_a_arg \\
-        $annot_b_arg \\
+        ${args} \\
+        ${annot_a_arg} \\
+        ${annot_b_arg} \\
         - \\
-        $prefix.$format
+        ${prefix}.${format}
 
     # last-dotplot has no --version option so let's use lastal from the same suite
     cat <<-END_VERSIONS > versions.yml
@@ -51,7 +51,7 @@ process LAST_DOTPLOT {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch $prefix.$format
+    touch ${prefix}.${format}
 
     # last-dotplot has no --version option so let's use lastal from the same suite
     cat <<-END_VERSIONS > versions.yml
@@ -59,5 +59,4 @@ process LAST_DOTPLOT {
         last: \$(lastal --version | sed 's/lastal //')
     END_VERSIONS
     """
-
 }

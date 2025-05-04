@@ -1,23 +1,23 @@
 process RSEQC_INNERDISTANCE {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/rseqc:5.0.3--py39hf95cd2a_0' :
-        'biocontainers/rseqc:5.0.3--py39hf95cd2a_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/rseqc:5.0.3--py39hf95cd2a_0'
+        : 'biocontainers/rseqc:5.0.3--py39hf95cd2a_0'}"
 
     input:
     tuple val(meta), path(bam)
-    path  bed
+    path bed
 
     output:
-    tuple val(meta), path("*distance.txt"), optional:true, emit: distance
-    tuple val(meta), path("*freq.txt")    , optional:true, emit: freq
-    tuple val(meta), path("*mean.txt")    , optional:true, emit: mean
-    tuple val(meta), path("*.pdf")        , optional:true, emit: pdf
-    tuple val(meta), path("*.r")          , optional:true, emit: rscript
-    path  "versions.yml"                  , emit: versions
+    tuple val(meta), path("*distance.txt"), optional: true, emit: distance
+    tuple val(meta), path("*freq.txt"), optional: true, emit: freq
+    tuple val(meta), path("*mean.txt"), optional: true, emit: mean
+    tuple val(meta), path("*.pdf"), optional: true, emit: pdf
+    tuple val(meta), path("*.r"), optional: true, emit: rscript
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,10 +28,10 @@ process RSEQC_INNERDISTANCE {
     if (!meta.single_end) {
         """
         inner_distance.py \\
-            -i $bam \\
-            -r $bed \\
-            -o $prefix \\
-            $args \\
+            -i ${bam} \\
+            -r ${bed} \\
+            -o ${prefix} \\
+            ${args} \\
             > stdout.txt
         head -n 2 stdout.txt > ${prefix}.inner_distance_mean.txt
 
@@ -40,7 +40,8 @@ process RSEQC_INNERDISTANCE {
             rseqc: \$(inner_distance.py --version | sed -e "s/inner_distance.py //g")
         END_VERSIONS
         """
-    } else {
+    }
+    else {
         """
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

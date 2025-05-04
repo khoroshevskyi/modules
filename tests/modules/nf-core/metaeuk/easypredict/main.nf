@@ -9,28 +9,26 @@ include { METAEUK_EASYPREDICT as METAEUK_EASYPREDICT_MMSEQS } from '../../../../
 workflow test_metaeuk_easypredict_fasta {
 
     input = [
-        [ id:'test', single_end:false ], // meta map
-        file(params.test_data['homo_sapiens']['genome']['genome_fasta'], checkIfExists: true)
+        [id: 'test', single_end: false],
+        file(params.test_data['homo_sapiens']['genome']['genome_fasta'], checkIfExists: true),
     ]
 
     fasta = [
         file(params.test_data['proteomics']['database']['yeast_ups'], checkIfExists: true)
     ]
 
-    METAEUK_EASYPREDICT_FASTA ( input, fasta )
-
+    METAEUK_EASYPREDICT_FASTA(input, fasta)
 }
 
 workflow test_metaeuk_easypredict_mmseqs {
 
     input = [
-        [ id:'test', single_end:false ], // meta map
-        file(params.test_data['homo_sapiens']['genome']['genome_fasta'], checkIfExists: true)
+        [id: 'test', single_end: false],
+        file(params.test_data['homo_sapiens']['genome']['genome_fasta'], checkIfExists: true),
     ]
 
-    MMSEQS_DATABASES ( 'UniProtKB/Swiss-Prot' )
+    MMSEQS_DATABASES('UniProtKB/Swiss-Prot')
     database = MMSEQS_DATABASES.out.database
 
-    METAEUK_EASYPREDICT_MMSEQS ( input, database )
-
+    METAEUK_EASYPREDICT_MMSEQS(input, database)
 }

@@ -1,5 +1,5 @@
 process SHINYNGS_APP {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     // To be able to pass the necessary secrets for shinyapps.io deployment,
@@ -13,18 +13,20 @@ process SHINYNGS_APP {
     // Those values must then be set in your Nextflow secrets.
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5b/5b0b2383d86ddb37ad7c2b8bc3c373926e8bc0cd08b137f457756c39e1589dd0/data' :
-        'community.wave.seqera.io/library/r-shinyngs:2.2.2--09ebd939fb477d18' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5b/5b0b2383d86ddb37ad7c2b8bc3c373926e8bc0cd08b137f457756c39e1589dd0/data'
+        : 'community.wave.seqera.io/library/r-shinyngs:2.2.2--09ebd939fb477d18'}"
 
     input:
-    tuple val(meta), path(sample), path(feature_meta), path(assay_files)    // Experiment-level info
-    tuple val(meta2), path(contrasts), path(differential_results)           // Differential info: contrasts and differential stats
-    val(contrast_stats_assay)
+    tuple val(meta), path(sample), path(feature_meta), path(assay_files)
+    // Experiment-level info
+    tuple val(meta2), path(contrasts), path(differential_results)
+    // Differential info: contrasts and differential stats
+    val contrast_stats_assay
 
     output:
-    tuple val(meta), path("*/data.rds"), path("*/app.R")    , emit: app
-    path "versions.yml"                                     , emit: versions
+    tuple val(meta), path("*/data.rds"), path("*/app.R"), emit: app
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -37,14 +39,14 @@ process SHINYNGS_APP {
 
     """
     make_app_from_files.R \\
-        --sample_metadata $sample \\
-        --feature_metadata $feature_meta \\
+        --sample_metadata ${sample} \\
+        --feature_metadata ${feature_meta} \\
         --assay_files ${assay_files.join(',')} \\
-        --contrast_file $contrasts \\
-        --contrast_stats_assay $contrast_stats_assay \\
+        --contrast_file ${contrasts} \\
+        --contrast_stats_assay ${contrast_stats_assay} \\
         --differential_results ${differential_results.join(',')} \\
-        --output_dir $prefix \\
-        $args \\
+        --output_dir ${prefix} \\
+        ${args} \\
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -57,7 +59,7 @@ process SHINYNGS_APP {
     def prefix = task.ext.prefix ?: meta.id
 
     """
-    mkdir -p $prefix
+    mkdir -p ${prefix}
     touch ${prefix}/data.rds
     touch ${prefix}/app.R
 
@@ -66,5 +68,4 @@ process SHINYNGS_APP {
         r-shinyngs: \$(Rscript -e "library(shinyngs); cat(as.character(packageVersion('shinyngs')))")
     END_VERSIONS
     """
-
 }

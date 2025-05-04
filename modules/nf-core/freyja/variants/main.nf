@@ -1,12 +1,12 @@
 process FREYJA_VARIANTS {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/freyja:1.5.3--pyhdfd78af_1' :
-        'biocontainers/freyja:1.5.3--pyhdfd78af_1' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/freyja:1.5.3--pyhdfd78af_1'
+        : 'biocontainers/freyja:1.5.3--pyhdfd78af_1'}"
 
     input:
     tuple val(meta), path(bam)
@@ -14,7 +14,7 @@ process FREYJA_VARIANTS {
 
     output:
     tuple val(meta), path("*.variants.tsv"), path("*.depth.tsv"), emit: variants
-    path "versions.yml"                                         , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,11 +25,11 @@ process FREYJA_VARIANTS {
     """
     freyja \\
         variants \\
-        $args \\
-        --ref $fasta \\
+        ${args} \\
+        --ref ${fasta} \\
         --variants ${prefix}.variants.tsv \\
         --depths ${prefix}.depth.tsv \\
-        $bam
+        ${bam}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

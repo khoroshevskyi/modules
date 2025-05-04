@@ -1,18 +1,18 @@
 process PYDAMAGE_ANALYZE {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/pydamage:0.70--pyhdfd78af_0' :
-        'biocontainers/pydamage:0.70--pyhdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/pydamage:0.70--pyhdfd78af_0'
+        : 'biocontainers/pydamage:0.70--pyhdfd78af_0'}"
 
     input:
     tuple val(meta), path(bam), path(bai)
 
     output:
     tuple val(meta), path("pydamage_results/*_pydamage_results.csv"), emit: csv
-    path "versions.yml"           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,9 +23,9 @@ process PYDAMAGE_ANALYZE {
     """
     pydamage \\
         analyze \\
-        $args \\
-        -p $task.cpus \\
-        $bam
+        ${args} \\
+        -p ${task.cpus} \\
+        ${bam}
 
     mv pydamage_results/pydamage_results.csv pydamage_results/${prefix}_pydamage_results.csv
 

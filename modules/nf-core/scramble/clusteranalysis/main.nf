@@ -1,11 +1,11 @@
 process SCRAMBLE_CLUSTERANALYSIS {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/scramble:1.0.1--h779adbc_1':
-        'biocontainers/scramble:1.0.1--h779adbc_1' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/scramble:1.0.1--h779adbc_1'
+        : 'biocontainers/scramble:1.0.1--h779adbc_1'}"
 
     input:
     tuple val(meta), path(clusters)
@@ -13,10 +13,10 @@ process SCRAMBLE_CLUSTERANALYSIS {
     path mei_ref
 
     output:
-    tuple val(meta), path("*_MEIs.txt")                 , optional:true, emit: meis_tab
-    tuple val(meta), path("*_PredictedDeletions.txt")   , optional:true, emit: dels_tab
-    tuple val(meta), path("*.vcf")                      , optional:true, emit: vcf
-    path "versions.yml"                                 , emit: versions
+    tuple val(meta), path("*_MEIs.txt"), optional: true, emit: meis_tab
+    tuple val(meta), path("*_PredictedDeletions.txt"), optional: true, emit: dels_tab
+    tuple val(meta), path("*.vcf"), optional: true, emit: vcf
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,7 +24,8 @@ process SCRAMBLE_CLUSTERANALYSIS {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def VERSION = '1.0.1' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+    def VERSION = '1.0.1'
+    // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
 
     def blastdb = args.contains("--eval-dels") ? "makeblastdb -in ${fasta} -parse_seqids -title ${fasta} -dbtype nucl -out ${fasta}" : ""
     def reference = fasta ? "--ref `pwd`/${fasta}" : ""

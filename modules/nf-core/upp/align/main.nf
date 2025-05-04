@@ -1,18 +1,18 @@
 process UPP_ALIGN {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     //TODO: Use bioconda container once the recipe is fixed (see https://github.com/smirarab/sepp/issues/141)
     container "nf-core/multiplesequencealign_upp2:4.5.5"
 
     input:
-    tuple val(meta) , path(fasta)
+    tuple val(meta), path(fasta)
     tuple val(meta2), path(tree)
-    val(compress)
+    val compress
 
     output:
     tuple val(meta), path("*.aln{.gz,}"), emit: alignment
-    path "versions.yml"                 , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -20,20 +20,20 @@ process UPP_ALIGN {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def tree_args = tree ? "-t $tree" : ""
+    def tree_args = tree ? "-t ${tree}" : ""
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
         error("Upp align module does not support Conda. Please use Docker / Singularity / Podman instead.")
     }
     """
 
-    if [ "$workflow.containerEngine" = 'singularity' ]; then
+    if [ "${workflow.containerEngine}" = 'singularity' ]; then
         export CONDA_PREFIX="/opt/conda/"
         export PASTA_TOOLS_DEVDIR="/opt/conda/bin/"
     fi
 
     run_upp.py \\
-        $args \\
-        -x $task.cpus \\
+        ${args} \\
+        -x ${task.cpus} \\
         -s ${fasta} \\
         -d . \\
         -o ${prefix} \\
@@ -57,7 +57,7 @@ process UPP_ALIGN {
     """
 
 
-    if [ "$compress" = true ]; then
+    if [ "${compress}" = true ]; then
         echo | gzip > "${prefix}.aln.gz"
     else
         touch "${prefix}.aln"

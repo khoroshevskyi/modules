@@ -1,11 +1,11 @@
 process BWA_SAMPE {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/bf/bf7890f8d4e38a7586581cb7fa13401b7af1582f21d94eef969df4cea852b6da/data' :
-        'community.wave.seqera.io/library/bwa_htslib_samtools:56c9f8d5201889a4' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/bf/bf7890f8d4e38a7586581cb7fa13401b7af1582f21d94eef969df4cea852b6da/data'
+        : 'community.wave.seqera.io/library/bwa_htslib_samtools:56c9f8d5201889a4'}"
 
     input:
     tuple val(meta), path(reads), path(sai)
@@ -13,7 +13,7 @@ process BWA_SAMPE {
 
     output:
     tuple val(meta), path("*.bam"), emit: bam
-    path "versions.yml"           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -27,11 +27,11 @@ process BWA_SAMPE {
     INDEX=`find -L ./ -name "*.amb" | sed 's/\\.amb\$//'`
 
     bwa sampe \\
-        $args \\
-        $read_group \\
+        ${args} \\
+        ${read_group} \\
         \$INDEX \\
-        $sai \\
-        $reads | samtools sort -@ ${task.cpus} -O bam - > ${prefix}.bam
+        ${sai} \\
+        ${reads} | samtools sort -@ ${task.cpus} -O bam - > ${prefix}.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

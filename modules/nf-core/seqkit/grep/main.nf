@@ -1,20 +1,20 @@
 process SEQKIT_GREP {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/seqkit:2.9.0--h9ee0642_0':
-        'biocontainers/seqkit:2.9.0--h9ee0642_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/seqkit:2.9.0--h9ee0642_0'
+        : 'biocontainers/seqkit:2.9.0--h9ee0642_0'}"
 
     input:
     tuple val(meta), path(sequence)
     path pattern
 
     output:
-    tuple val(meta), path("*.{fa,fq}.gz")  , emit: filter
-    path "versions.yml"                    , emit: versions
+    tuple val(meta), path("*.{fa,fq}.gz"), emit: filter
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,8 +29,8 @@ process SEQKIT_GREP {
     """
     seqkit \\
         grep \\
-        $args \\
-        --threads $task.cpus \\
+        ${args} \\
+        --threads ${task.cpus} \\
         ${pattern_file} \\
         ${sequence} \\
         -o ${prefix}.${suffix}.gz \\

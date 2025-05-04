@@ -1,14 +1,15 @@
 process MAPAD_MAP {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mapad:0.44.1--ha96b9cd_0':
-        'biocontainers/mapad:0.44.1--ha96b9cd_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/mapad:0.44.1--ha96b9cd_0'
+        : 'biocontainers/mapad:0.44.1--ha96b9cd_0'}"
 
     input:
-    tuple val(meta) , path(reads) // Supports only single-end or merged paired-end data
+    tuple val(meta), path(reads)
+    // Supports only single-end or merged paired-end data
     tuple val(meta2), path(index)
     val mismatch_parameter
     val double_stranded_library
@@ -20,7 +21,7 @@ process MAPAD_MAP {
 
     output:
     tuple val(meta), path("*.bam"), emit: bam
-    path "versions.yml"           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

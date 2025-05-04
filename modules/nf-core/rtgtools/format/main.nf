@@ -1,18 +1,18 @@
 process RTGTOOLS_FORMAT {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/rtg-tools:3.12.1--hdfd78af_0':
-        'biocontainers/rtg-tools:3.12.1--hdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/rtg-tools:3.12.1--hdfd78af_0'
+        : 'biocontainers/rtg-tools:3.12.1--hdfd78af_0'}"
 
     input:
     tuple val(meta), path(input1), path(input2), path(sam_rg)
 
     output:
     tuple val(meta), path("*.sdf"), emit: sdf
-    path "versions.yml"           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -27,9 +27,10 @@ process RTGTOOLS_FORMAT {
 
     def avail_mem = "3G"
     if (!task.memory) {
-        log.info '[RTG format] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
-    } else {
-        avail_mem = (task.memory.mega*0.8).intValue() + "M"
+        log.info('[RTG format] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.')
+    }
+    else {
+        avail_mem = (task.memory.mega * 0.8).intValue() + "M"
     }
 
     """
@@ -50,9 +51,10 @@ process RTGTOOLS_FORMAT {
 
     def avail_mem = "3G"
     if (!task.memory) {
-        log.info '[RTG format] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
-    } else {
-        avail_mem = (task.memory.mega*0.8).intValue() + "M"
+        log.info('[RTG format] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.')
+    }
+    else {
+        avail_mem = (task.memory.mega * 0.8).intValue() + "M"
     }
     """
     touch ${prefix}.sdf

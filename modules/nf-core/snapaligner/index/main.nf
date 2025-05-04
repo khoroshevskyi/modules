@@ -1,18 +1,18 @@
 process SNAPALIGNER_INDEX {
-    tag "$fasta"
+    tag "${fasta}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/snap-aligner:2.0.3--hd03093a_0':
-        'biocontainers/snap-aligner:2.0.3--hd03093a_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/snap-aligner:2.0.3--hd03093a_0'
+        : 'biocontainers/snap-aligner:2.0.3--hd03093a_0'}"
 
     input:
     tuple val(meta), path(fasta), path(altcontigfile), path(nonaltcontigfile), path(altliftoverfile)
 
     output:
-    tuple val(meta), path("snap/*") ,emit: index
-    path "versions.yml"             ,emit: versions
+    tuple val(meta), path("snap/*"), emit: index
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -27,19 +27,20 @@ process SNAPALIGNER_INDEX {
 
     snap-aligner \\
         index \\
-        $fasta \\
+        ${fasta} \\
         snap \\
         -t${task.cpus} \\
-        $altcontigfile_arg \\
-        $nonaltcontigfile_arg \\
-        $altliftoverfile_arg \\
-        $args
+        ${altcontigfile_arg} \\
+        ${nonaltcontigfile_arg} \\
+        ${altliftoverfile_arg} \\
+        ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         snapaligner: \$(snap-aligner 2>&1| head -n 1 | sed 's/^.*version //')
     END_VERSIONS
     """
+
     stub:
     """
     mkdir snap
@@ -50,7 +51,7 @@ process SNAPALIGNER_INDEX {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        snapaligner: \$(snap-aligner 2>&1| head -n 1 | sed 's/^.*version //;s/\.\$//')
+        snapaligner: \$(snap-aligner 2>&1| head -n 1 | sed 's/^.*version //;s/\$//')
     END_VERSIONS
     """
 }

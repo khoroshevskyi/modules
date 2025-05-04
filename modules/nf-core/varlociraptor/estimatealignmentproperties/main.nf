@@ -1,10 +1,10 @@
 process VARLOCIRAPTOR_ESTIMATEALIGNMENTPROPERTIES {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/varlociraptor:8.1.1--hc349b7f_0':
-        'biocontainers/varlociraptor:8.1.1--hc349b7f_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/varlociraptor:8.1.1--hc349b7f_0'
+        : 'biocontainers/varlociraptor:8.1.1--hc349b7f_0'}"
 
     input:
     tuple val(meta), path(bam)
@@ -13,7 +13,7 @@ process VARLOCIRAPTOR_ESTIMATEALIGNMENTPROPERTIES {
 
     output:
     tuple val(meta), path("*.alignment-properties.json"), emit: alignment_properties_json
-    path "versions.yml"                                 , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,9 +23,9 @@ process VARLOCIRAPTOR_ESTIMATEALIGNMENTPROPERTIES {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     varlociraptor estimate alignment-properties \\
-        $fasta \\
-        --bam $bam \\
-        $args \\
+        ${fasta} \\
+        --bam ${bam} \\
+        ${args} \\
         > ${prefix}.alignment-properties.json
 
     cat <<-END_VERSIONS > versions.yml

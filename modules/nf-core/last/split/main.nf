@@ -1,5 +1,5 @@
 process LAST_SPLIT {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
@@ -12,8 +12,8 @@ process LAST_SPLIT {
 
     output:
     tuple val(meta), path("*.maf.gz"), emit: maf
-    tuple val(meta), path("*.tsv")   , emit: multiqc
-    path "versions.yml"              , emit: versions
+    tuple val(meta), path("*.tsv"), emit: multiqc
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,7 +21,9 @@ process LAST_SPLIT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    if( "$maf" == "${prefix}.maf.gz" ) error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
+    if ("${maf}" == "${prefix}.maf.gz") {
+        error("Input and output names are the same, use \"task.ext.prefix\" to disambiguate!")
+    }
     """
     set -o pipefail
 
@@ -38,12 +40,12 @@ process LAST_SPLIT {
         }
         END {
             percentSimilarity = (totalAlignmentLength > 0) ? (totalMatches / totalAlignmentLength * 100) : 0;
-            print "$meta.id" "\t" totalAlignmentLength "\t" percentSimilarity;  # Data in TSV format
+            print "${meta.id}" "\t" totalAlignmentLength "\t" percentSimilarity;  # Data in TSV format
         }'
     }
 
-    zcat < $maf |
-        last-split $args |
+    zcat < ${maf} |
+        last-split ${args} |
         tee >(gzip --no-name  > ${prefix}.maf.gz) |
         maf-convert psl |
         calculate_psl_metrics > ${prefix}.tsv
@@ -57,7 +59,9 @@ process LAST_SPLIT {
     stub:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    if( "$maf" == "${prefix}.maf.gz" ) error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
+    if ("${maf}" == "${prefix}.maf.gz") {
+        error("Input and output names are the same, use \"task.ext.prefix\" to disambiguate!")
+    }
     """
     echo stub | gzip --no-name > ${prefix}.maf.gz
     touch ${prefix}.tsv

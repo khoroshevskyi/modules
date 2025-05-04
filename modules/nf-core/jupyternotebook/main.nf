@@ -1,16 +1,16 @@
-include { dump_params_yml; indent_code_block } from "./parametrize"
+include { dump_params_yml ; indent_code_block } from "./parametrize"
 
 process JUPYTERNOTEBOOK {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     //NB: You likely want to override this with a container containing all required
     //dependencies for your analysis. The container at least needs to contain the
     //ipykernel, jupytext, papermill and nbconvert Python packages.
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-514b1a5d280c7043110b2a8d0a87b57ba392a963:879972fc8bdc81ee92f2bce3b4805d89a772bf84-0' :
-        'biocontainers/mulled-v2-514b1a5d280c7043110b2a8d0a87b57ba392a963:879972fc8bdc81ee92f2bce3b4805d89a772bf84-0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/mulled-v2-514b1a5d280c7043110b2a8d0a87b57ba392a963:879972fc8bdc81ee92f2bce3b4805d89a772bf84-0'
+        : 'biocontainers/mulled-v2-514b1a5d280c7043110b2a8d0a87b57ba392a963:879972fc8bdc81ee92f2bce3b4805d89a772bf84-0'}"
 
     input:
     tuple val(meta), path(notebook)
@@ -20,7 +20,7 @@ process JUPYTERNOTEBOOK {
     output:
     tuple val(meta), path("*.html"), emit: report
     tuple val(meta), path("artifacts/"), emit: artifacts, optional: true
-    path "versions.yml"            , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,10 +28,10 @@ process JUPYTERNOTEBOOK {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def parametrize = (task.ext.parametrize == null) ?  true : task.ext.parametrize
-    def implicit_params = (task.ext.implicit_params == null) ? true : task.ext.implicit_params
-    def meta_params = (task.ext.meta_params == null) ? true : task.ext.meta_params
-    def kernel   = task.ext.kernel ?: '-'
+    def parametrize = task.ext.parametrize == null ? true : task.ext.parametrize
+    def implicit_params = task.ext.implicit_params == null ? true : task.ext.implicit_params
+    def meta_params = task.ext.meta_params == null ? true : task.ext.meta_params
+    def kernel = task.ext.kernel ?: '-'
 
     // Dump parameters to yaml file.
     // Using a yaml file over using the CLI params because
@@ -52,7 +52,8 @@ process JUPYTERNOTEBOOK {
         nb_params += parameters
         params_cmd = dump_params_yml(nb_params)
         render_cmd = "papermill -f .params.yml"
-    } else {
+    }
+    else {
         render_cmd = "papermill"
     }
 
@@ -66,10 +67,10 @@ process JUPYTERNOTEBOOK {
     mkdir artifacts
 
     # Set parallelism for BLAS/MKL etc. to avoid over-booking of resources
-    export MKL_NUM_THREADS="$task.cpus"
-    export OPENBLAS_NUM_THREADS="$task.cpus"
-    export OMP_NUM_THREADS="$task.cpus"
-    export NUMBA_NUM_THREADS="$task.cpus"
+    export MKL_NUM_THREADS="${task.cpus}"
+    export OPENBLAS_NUM_THREADS="${task.cpus}"
+    export OMP_NUM_THREADS="${task.cpus}"
+    export NUMBA_NUM_THREADS="${task.cpus}"
 
     # Convert notebook to ipynb using jupytext, execute using papermill, convert using nbconvert
     jupytext --to notebook --output - --set-kernel ${kernel} ${notebook} > ${notebook}.ipynb

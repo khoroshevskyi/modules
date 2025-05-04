@@ -7,8 +7,8 @@ include { FASTA_CLEAN_FCS } from '../../../../subworkflows/nf-core/fasta_clean_f
 workflow test_fasta_clean_fcs {
 
     input = [
-        [ id:'test', single_end:false, taxid:'9606' ], // meta map
-        file(params.test_data['bacteroides_fragilis']['genome']['genome_fna_gz'], checkIfExists: true)
+        [id: 'test', single_end: false, taxid: '9606'],
+        file(params.test_data['bacteroides_fragilis']['genome']['genome_fna_gz'], checkIfExists: true),
     ]
 
     database = [
@@ -16,8 +16,8 @@ workflow test_fasta_clean_fcs {
         file("https://ftp.ncbi.nlm.nih.gov/genomes/TOOLS/FCS/database/test-only/test-only.gxs"),
         file("https://ftp.ncbi.nlm.nih.gov/genomes/TOOLS/FCS/database/test-only/test-only.taxa.tsv"),
         file("https://ftp.ncbi.nlm.nih.gov/genomes/TOOLS/FCS/database/test-only/test-only.meta.jsonl"),
-        file("https://ftp.ncbi.nlm.nih.gov/genomes/TOOLS/FCS/database/test-only/test-only.blast_div.tsv.gz")
+        file("https://ftp.ncbi.nlm.nih.gov/genomes/TOOLS/FCS/database/test-only/test-only.blast_div.tsv.gz"),
     ]
 
-    FASTA_CLEAN_FCS ( input, database )
+    FASTA_CLEAN_FCS(input, database)
 }

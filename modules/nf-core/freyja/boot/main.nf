@@ -1,12 +1,12 @@
 process FREYJA_BOOT {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/freyja:1.5.3--pyhdfd78af_1' :
-        'biocontainers/freyja:1.5.3--pyhdfd78af_1' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/freyja:1.5.3--pyhdfd78af_1'
+        : 'biocontainers/freyja:1.5.3--pyhdfd78af_1'}"
 
     input:
     tuple val(meta), path(variants), path(depths)
@@ -15,9 +15,9 @@ process FREYJA_BOOT {
     path lineages_meta
 
     output:
-    tuple val(meta), path("*lineages.csv")  , emit: lineages
+    tuple val(meta), path("*lineages.csv"), emit: lineages
     tuple val(meta), path("*summarized.csv"), emit: summarized
-    path "versions.yml"                     , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,14 +28,14 @@ process FREYJA_BOOT {
     """
     freyja \\
         boot \\
-        $args \\
-        --nt $task.cpus \\
-        --nb $repeats \\
-        --output_base $prefix \\
-        --barcodes $barcodes \\
-        --meta $lineages_meta \\
-        $variants \\
-        $depths
+        ${args} \\
+        --nt ${task.cpus} \\
+        --nb ${repeats} \\
+        --output_base ${prefix} \\
+        --barcodes ${barcodes} \\
+        --meta ${lineages_meta} \\
+        ${variants} \\
+        ${depths}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

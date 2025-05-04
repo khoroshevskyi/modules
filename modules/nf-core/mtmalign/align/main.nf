@@ -1,22 +1,21 @@
 
-
 process MTMALIGN_ALIGN {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-5bcf71dc66dac33d8e003c5e78043b80f5c7f269:8f0e486d46f7ab38892c1a8f78d2894a549d03b5-0':
-        'biocontainers/mulled-v2-5bcf71dc66dac33d8e003c5e78043b80f5c7f269:8f0e486d46f7ab38892c1a8f78d2894a549d03b5-0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/mulled-v2-5bcf71dc66dac33d8e003c5e78043b80f5c7f269:8f0e486d46f7ab38892c1a8f78d2894a549d03b5-0'
+        : 'biocontainers/mulled-v2-5bcf71dc66dac33d8e003c5e78043b80f5c7f269:8f0e486d46f7ab38892c1a8f78d2894a549d03b5-0'}"
 
     input:
     tuple val(meta), path(pdbs)
-    val(compress)
+    val compress
 
     output:
     tuple val(meta), path("${prefix}.aln${compress ? '.gz' : ''}"), emit: alignment
     tuple val(meta), path("${prefix}.pdb${compress ? '.gz' : ''}"), emit: structure
-    path "versions.yml"                                           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

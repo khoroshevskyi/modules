@@ -1,18 +1,18 @@
 process BEDTOOLS_BAMTOBED {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_0' :
-        'biocontainers/bedtools:2.31.1--hf5e1c6e_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_0'
+        : 'biocontainers/bedtools:2.31.1--hf5e1c6e_0'}"
 
     input:
     tuple val(meta), path(bam)
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
-    path  "versions.yml"          , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,8 +23,8 @@ process BEDTOOLS_BAMTOBED {
     """
     bedtools \\
         bamtobed \\
-        $args \\
-        -i $bam \\
+        ${args} \\
+        -i ${bam} \\
         > ${prefix}.bed
 
     cat <<-END_VERSIONS > versions.yml

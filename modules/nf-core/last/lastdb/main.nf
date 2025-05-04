@@ -1,5 +1,5 @@
 process LAST_LASTDB {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
@@ -12,7 +12,7 @@ process LAST_LASTDB {
 
     output:
     tuple val(meta), path("lastdb"), emit: index
-    path "versions.yml"            , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,10 +23,10 @@ process LAST_LASTDB {
     """
     mkdir lastdb
     lastdb \\
-        $args \\
-        -P $task.cpus \\
+        ${args} \\
+        -P ${task.cpus} \\
         lastdb/${prefix} \\
-        $fastx
+        ${fastx}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

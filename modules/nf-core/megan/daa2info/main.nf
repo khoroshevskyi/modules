@@ -1,20 +1,20 @@
 process MEGAN_DAA2INFO {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/megan:6.24.20--h9ee0642_0':
-        'biocontainers/megan:6.24.20--h9ee0642_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/megan:6.24.20--h9ee0642_0'
+        : 'biocontainers/megan:6.24.20--h9ee0642_0'}"
 
     input:
     tuple val(meta), path(daa)
-    val(megan_summary)
+    val megan_summary
 
     output:
-    tuple val(meta), path("*.txt.gz")               , emit: txt_gz
+    tuple val(meta), path("*.txt.gz"), emit: txt_gz
     tuple val(meta), path("*.megan"), optional: true, emit: megan
-    path "versions.yml"                             , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,7 +28,7 @@ process MEGAN_DAA2INFO {
         -i ${daa} \\
         -o ${prefix}.txt.gz \\
         ${summary} \\
-        $args
+        ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -1,11 +1,11 @@
 process CUSTOM_FILTERDIFFERENTIALTABLE {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/pandas:1.5.2' :
-        'biocontainers/pandas:1.5.2' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/pandas:1.5.2'
+        : 'biocontainers/pandas:1.5.2'}"
 
     input:
     tuple val(meta), path(input_file)
@@ -14,7 +14,7 @@ process CUSTOM_FILTERDIFFERENTIALTABLE {
 
     output:
     tuple val(meta), path("*_filtered.tsv"), emit: filtered
-    path "versions.yml"                    , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

@@ -1,22 +1,21 @@
 process LONGPHASE_HAPLOTAG {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/longphase:1.7.3--hf5e1c6e_0':
-        'biocontainers/longphase:1.7.3--hf5e1c6e_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/longphase:1.7.3--hf5e1c6e_0'
+        : 'biocontainers/longphase:1.7.3--hf5e1c6e_0'}"
 
     input:
     tuple val(meta), path(bam), path(bai), path(snps), path(svs), path(mods)
     tuple val(meta2), path(fasta)
     tuple val(meta3), path(fai)
 
-
     output:
     tuple val(meta), path("*.{bam,cram}"), emit: bam
-    tuple val(meta), path("*.log")       , emit: log , optional: true
-    path "versions.yml"                  , emit: versions
+    tuple val(meta), path("*.log"), emit: log, optional: true
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -30,8 +29,8 @@ process LONGPHASE_HAPLOTAG {
     """
     longphase \\
         haplotag \\
-        $args \\
-        --threads $task.cpus \\
+        ${args} \\
+        --threads ${task.cpus} \\
         -o ${prefix} \\
         --reference ${fasta} \\
         --snp-file ${snps} \\

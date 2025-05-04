@@ -1,31 +1,31 @@
 process RTGTOOLS_VCFEVAL {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/rtg-tools:3.12.1--hdfd78af_0':
-        'biocontainers/rtg-tools:3.12.1--hdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/rtg-tools:3.12.1--hdfd78af_0'
+        : 'biocontainers/rtg-tools:3.12.1--hdfd78af_0'}"
 
     input:
     tuple val(meta), path(query_vcf), path(query_vcf_tbi), path(truth_vcf), path(truth_vcf_tbi), path(truth_bed), path(regions_bed)
     tuple val(meta2), path(sdf)
 
     output:
-    tuple val(meta), path("*.tp.vcf.gz")                , emit: tp_vcf
-    tuple val(meta), path("*.tp.vcf.gz.tbi")            , emit: tp_tbi
-    tuple val(meta), path("*.fn.vcf.gz")                , emit: fn_vcf
-    tuple val(meta), path("*.fn.vcf.gz.tbi")            , emit: fn_tbi
-    tuple val(meta), path("*.fp.vcf.gz")                , emit: fp_vcf
-    tuple val(meta), path("*.fp.vcf.gz.tbi")            , emit: fp_tbi
-    tuple val(meta), path("*.tp-baseline.vcf.gz")       , emit: baseline_vcf
-    tuple val(meta), path("*.tp-baseline.vcf.gz.tbi")   , emit: baseline_tbi
-    tuple val(meta), path("*.snp_roc.tsv.gz")           , emit: snp_roc
-    tuple val(meta), path("*.non_snp_roc.tsv.gz")       , emit: non_snp_roc
-    tuple val(meta), path("*.weighted_roc.tsv.gz")      , emit: weighted_roc
-    tuple val(meta), path("*.summary.txt")              , emit: summary
-    tuple val(meta), path("*.phasing.txt")              , emit: phasing
-    path "versions.yml"                                 , emit: versions
+    tuple val(meta), path("*.tp.vcf.gz"), emit: tp_vcf
+    tuple val(meta), path("*.tp.vcf.gz.tbi"), emit: tp_tbi
+    tuple val(meta), path("*.fn.vcf.gz"), emit: fn_vcf
+    tuple val(meta), path("*.fn.vcf.gz.tbi"), emit: fn_tbi
+    tuple val(meta), path("*.fp.vcf.gz"), emit: fp_vcf
+    tuple val(meta), path("*.fp.vcf.gz.tbi"), emit: fp_tbi
+    tuple val(meta), path("*.tp-baseline.vcf.gz"), emit: baseline_vcf
+    tuple val(meta), path("*.tp-baseline.vcf.gz.tbi"), emit: baseline_tbi
+    tuple val(meta), path("*.snp_roc.tsv.gz"), emit: snp_roc
+    tuple val(meta), path("*.non_snp_roc.tsv.gz"), emit: non_snp_roc
+    tuple val(meta), path("*.weighted_roc.tsv.gz"), emit: weighted_roc
+    tuple val(meta), path("*.summary.txt"), emit: summary
+    tuple val(meta), path("*.phasing.txt"), emit: phasing
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -43,7 +43,7 @@ process RTGTOOLS_VCFEVAL {
     ${truth_index}
     ${query_index}
 
-    rtg RTG_MEM=$avail_mem vcfeval \\
+    rtg RTG_MEM=${avail_mem} vcfeval \\
         ${args} \\
         --baseline=${truth_vcf} \\
         ${bed_regions} \\

@@ -3,13 +3,13 @@ process ANNOTSV_INSTALLANNOTATIONS {
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/b2/b202e030802ec909556961b542f15e0b37583755cebf08e899b3042a44f93ddb/data' :
-        'community.wave.seqera.io/library/annotsv:3.4.2--6e6cee83703bd24c' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/b2/b202e030802ec909556961b542f15e0b37583755cebf08e899b3042a44f93ddb/data'
+        : 'community.wave.seqera.io/library/annotsv:3.4.2--6e6cee83703bd24c'}"
 
     output:
     path "AnnotSV_annotations", emit: annotations
-    path "versions.yml"       , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

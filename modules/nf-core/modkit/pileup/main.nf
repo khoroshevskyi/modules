@@ -1,11 +1,11 @@
 process MODKIT_PILEUP {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ont-modkit:0.4.4--hcdda2d0_0':
-        'biocontainers/ont-modkit:0.4.4--hcdda2d0_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/ont-modkit:0.4.4--hcdda2d0_0'
+        : 'biocontainers/ont-modkit:0.4.4--hcdda2d0_0'}"
 
     input:
     tuple val(meta), path(bam), path(bai)
@@ -13,29 +13,29 @@ process MODKIT_PILEUP {
     tuple val(meta3), path(bed)
 
     output:
-    tuple val(meta), path("*.bed")     , emit: bed     , optional: true
+    tuple val(meta), path("*.bed"), emit: bed, optional: true
     tuple val(meta), path("*.bedgraph"), emit: bedgraph, optional: true
-    tuple val(meta), path("*.log")     , emit: log     , optional: true
-    path "versions.yml"                , emit: versions
+    tuple val(meta), path("*.log"), emit: log, optional: true
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args        = task.ext.args ?: ''
-    def prefix      = task.ext.prefix ?: "${meta.id}"
-    def reference   = fasta ? "--ref ${fasta}" : ""
+    def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    def reference = fasta ? "--ref ${fasta}" : ""
     def include_bed = bed ? "--include-bed ${bed}" : ''
 
     """
     modkit \\
         pileup \\
-        $args \\
+        ${args} \\
         --threads ${task.cpus} \\
         --prefix ${prefix} \\
-        $reference \\
-        $include_bed \\
-        $bam \\
+        ${reference} \\
+        ${include_bed} \\
+        ${bam} \\
         ${prefix}.tmp
 
     if test -d ${prefix}.tmp; then
@@ -55,7 +55,7 @@ process MODKIT_PILEUP {
     """
 
     stub:
-    def args   = task.ext.args ?: ''
+    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}.bed
