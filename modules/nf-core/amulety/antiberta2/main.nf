@@ -1,20 +1,20 @@
 process AMULETY_ANTIBERTA2 {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_medium'
     label 'process_gpu'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'oras://community.wave.seqera.io/library/amulety_igblast:b2a7736f645c40e5'
-        : 'community.wave.seqera.io/library/amulety_igblast:659eaa872785adeb'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'oras://community.wave.seqera.io/library/amulety_igblast:b2a7736f645c40e5':
+        'community.wave.seqera.io/library/amulety_igblast:659eaa872785adeb' }"
 
     input:
     tuple val(meta), path(tsv)
-    val chain
+    val(chain)
 
     output:
     tuple val(meta), path("*.tsv"), emit: embedding
-    path "versions.yml", emit: versions
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,10 +25,10 @@ process AMULETY_ANTIBERTA2 {
     """
     TRANSFORMERS_CACHE="./cache" amulety \\
         antiberta2 \\
-        ${args} \\
+        $args \\
         --cache-dir ./cache \\
-        ${tsv} \\
-        ${chain} \\
+        $tsv \\
+        $chain \\
         ${prefix}.tsv
 
     cat <<-END_VERSIONS > versions.yml

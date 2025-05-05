@@ -1,27 +1,27 @@
 process BLAST_MAKEBLASTDB {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/blast:2.16.0--h66d330f_5'
-        : 'biocontainers/blast:2.16.0--h66d330f_5'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/blast:2.16.0--h66d330f_5':
+        'biocontainers/blast:2.16.0--h66d330f_5' }"
 
     input:
     tuple val(meta), path(fasta)
 
     output:
     tuple val(meta), path("${prefix}"), emit: db
-    path "versions.yml", emit: versions
+    path "versions.yml"               , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    prefix = task.ext.prefix ?: "${meta.id}"
-    def is_compressed = fasta.getExtension() == "gz" ? true : false
-    def fasta_name = is_compressed ? fasta.getBaseName() : fasta
+    def args           = task.ext.args ?: ''
+    prefix             = task.ext.prefix ?: "${meta.id}"
+    def is_compressed  = fasta.getExtension() == "gz" ? true : false
+    def fasta_name     = is_compressed ? fasta.getBaseName() : fasta
     """
     if [ "${is_compressed}" == "true" ]; then
         gzip -c -d ${fasta} > ${fasta_name}
@@ -39,10 +39,10 @@ process BLAST_MAKEBLASTDB {
     """
 
     stub:
-    def args = task.ext.args ?: ''
-    prefix = task.ext.prefix ?: "${meta.id}"
-    def is_compressed = fasta.getExtension() == "gz" ? true : false
-    def fasta_name = is_compressed ? fasta.getBaseName() : fasta
+    def args           = task.ext.args ?: ''
+    prefix             = task.ext.prefix ?: "${meta.id}"
+    def is_compressed  = fasta.getExtension() == "gz" ? true : false
+    def fasta_name     = is_compressed ? fasta.getBaseName() : fasta
     """
     touch ${fasta_name}.fasta
     touch ${fasta_name}.fasta.ndb

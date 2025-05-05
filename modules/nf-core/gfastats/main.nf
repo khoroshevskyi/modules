@@ -1,11 +1,11 @@
 process GFASTATS {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/gfastats:1.3.10--h077b44d_0'
-        : 'biocontainers/gfastats:1.3.10--h077b44d_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/gfastats:1.3.10--h077b44d_0':
+        'biocontainers/gfastats:1.3.10--h077b44d_0' }"
 
     input:
     tuple val(meta), path(assembly)
@@ -19,32 +19,32 @@ process GFASTATS {
 
     output:
     tuple val(meta), path("*.assembly_summary"), emit: assembly_summary
-    tuple val(meta), path("*.${out_fmt}.gz"), emit: assembly, optional: true
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.${out_fmt}.gz")   , emit: assembly        , optional: true
+    path "versions.yml"                        , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
+    def args   = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def agp = agpfile ? "--agp-to-path ${agpfile}" : ""
-    def ibed = include_bed ? "--include-bed ${include_bed}" : ""
-    def ebed = exclude_bed ? "--exclude-bed ${exclude_bed}" : ""
-    def sak = instructions ? "--swiss-army-knife ${instructions}" : ""
+    def agp    = agpfile ? "--agp-to-path $agpfile" : ""
+    def ibed   = include_bed ? "--include-bed $include_bed" : ""
+    def ebed   = exclude_bed ? "--exclude-bed $exclude_bed" : ""
+    def sak    = instructions ? "--swiss-army-knife $instructions" : ""
     def output_sequences = out_fmt ? "--out-format ${prefix}.${out_fmt}.gz" : ""
     """
     gfastats \\
-        ${args} \\
-        --threads ${task.cpus} \\
-        ${agp} \\
-        ${ibed} \\
-        ${ebed} \\
-        ${sak} \\
-        ${output_sequences} \\
-        --input-sequence ${assembly} \\
-        ${genome_size} \\
-        ${target} \\
+        $args \\
+        --threads $task.cpus \\
+        $agp \\
+        $ibed \\
+        $ebed \\
+        $sak \\
+        $output_sequences \\
+        --input-sequence $assembly \\
+        $genome_size \\
+        $target \\
         > ${prefix}.assembly_summary
 
     cat <<-END_VERSIONS > versions.yml

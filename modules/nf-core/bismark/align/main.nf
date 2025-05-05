@@ -1,59 +1,57 @@
 process BISMARK_ALIGN {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/bismark:0.24.2--hdfd78af_0'
-        : 'biocontainers/bismark:0.24.2--hdfd78af_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/bismark:0.24.2--hdfd78af_0' :
+        'biocontainers/bismark:0.24.2--hdfd78af_0' }"
 
     input:
     tuple val(meta), path(reads)
-    tuple val(meta2), path(fasta, stageAs: 'tmp/*')
-    // This change mounts as directory containing the FASTA file to prevent nested symlinks
+    tuple val(meta2), path(fasta, stageAs: 'tmp/*') // This change mounts as directory containing the FASTA file to prevent nested symlinks
     tuple val(meta3), path(index)
 
     output:
-    tuple val(meta), path("*bam"), emit: bam
+    tuple val(meta), path("*bam")       , emit: bam
     tuple val(meta), path("*report.txt"), emit: report
-    tuple val(meta), path("*fq.gz"), emit: unmapped, optional: true
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*fq.gz")     , emit: unmapped, optional: true
+    path "versions.yml"                 , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
-    if (task.ext.prefix) {
+    if(task.ext.prefix){
         args += " --prefix ${task.ext.prefix}"
     }
     def fastq = meta.single_end ? reads : "-1 ${reads[0]} -2 ${reads[1]}"
 
     // Try to assign sensible bismark --multicore if not already set
-    if (!args.contains('--multicore') && task.cpus) {
+    if(!args.contains('--multicore') && task.cpus){
 
         // Numbers based on recommendation by Felix for a typical mouse genome
         def ccore = 1
         def cpu_per_multicore = 3
-        def mem_per_multicore = 13.GB.toBytes()
-        if (args.contains('--non_directional')) {
+        def mem_per_multicore = (13.GB).toBytes()
+        if(args.contains('--non_directional')){
             cpu_per_multicore = 5
-            mem_per_multicore = 18.GB.toBytes()
+            mem_per_multicore = (18.GB).toBytes()
         }
 
         // How many multicore splits can we afford with the cpus we have?
-        ccore = ((task.cpus as Integer) / cpu_per_multicore) as Integer
+        ccore = ((task.cpus as int) / cpu_per_multicore) as int
 
         // Check that we have enough memory
         try {
             def tmem = (task.memory as MemoryUnit).toBytes()
-            def mcore = (tmem / mem_per_multicore) as Integer
+            def mcore = (tmem / mem_per_multicore) as int
             ccore = Math.min(ccore, mcore)
+        } catch (all) {
+            log.warn "Not able to define bismark align multicore based on available memory"
         }
-        catch (Exception all) {
-            log.warn("Not able to define bismark align multicore based on available memory")
-        }
-        if (ccore > 1) {
+        if(ccore > 1){
             args += " --multicore ${ccore}"
         }
     }

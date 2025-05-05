@@ -1,19 +1,19 @@
 process SCRAMBLE_CLUSTERIDENTIFIER {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/scramble:1.0.1--h779adbc_1'
-        : 'biocontainers/scramble:1.0.1--h779adbc_1'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/scramble:1.0.1--h779adbc_1':
+        'biocontainers/scramble:1.0.1--h779adbc_1' }"
 
     input:
     tuple val(meta), path(input), path(input_index)
     path fasta
 
     output:
-    tuple val(meta), path("*.clusters.txt"), emit: clusters
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.clusters.txt") , emit: clusters
+    path "versions.yml"                     , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,8 +21,7 @@ process SCRAMBLE_CLUSTERIDENTIFIER {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def VERSION = '1.0.1'
-    // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+    def VERSION = '1.0.1' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
 
     // The tool does not contain a way to specify the reference file when using CRAM files.
     // It just looks in the header of the CRAM file where the reference file is located,

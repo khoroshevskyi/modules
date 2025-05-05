@@ -1,18 +1,18 @@
 process BWAMETH_INDEX {
-    tag "${fasta}"
+    tag "$fasta"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/bwameth:0.2.7--pyh7cba7a3_0'
-        : 'biocontainers/bwameth:0.2.7--pyh7cba7a3_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/bwameth:0.2.7--pyh7cba7a3_0' :
+        'biocontainers/bwameth:0.2.7--pyh7cba7a3_0' }"
 
     input:
-    tuple val(meta), path(fasta, name: "BwamethIndex/")
+    tuple val(meta), path(fasta, name:"BwamethIndex/")
 
     output:
     tuple val(meta), path("BwamethIndex"), emit: index
-    path "versions.yml", emit: versions
+    path "versions.yml"                  , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,9 +21,9 @@ process BWAMETH_INDEX {
     def args = task.ext.args ?: ''
     """
 
-    bwameth.py index ${fasta}
+    bwameth.py index $fasta
 
-    rm ${fasta}
+    rm $fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -34,7 +34,7 @@ process BWAMETH_INDEX {
     stub:
     def args = task.ext.args ?: ''
     """
-    rm ${fasta}
+    rm $fasta
 
     mkdir -p BwamethIndex/
     touch BwamethIndex/genome.fasta.bwameth.c2t

@@ -3,18 +3,18 @@ process METAMDBG_ASM {
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/metamdbg:1.1--h077b44d_1'
-        : 'biocontainers/metamdbg:1.1--h077b44d_1'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/metamdbg:1.1--h077b44d_1':
+        'biocontainers/metamdbg:1.1--h077b44d_1' }"
 
     input:
     tuple val(meta), path(reads)
-    val input_type
+    val(input_type)
 
     output:
     tuple val(meta), path("*.contigs.fasta.gz"), emit: contigs
-    tuple val(meta), path("*.metaMDBG.log"), emit: log
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.metaMDBG.log")    , emit: log
+    path "versions.yml"                        , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -22,7 +22,7 @@ process METAMDBG_ASM {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    if (!(input_type in ["hifi", "ont"])) {
+    if(!(input_type in ["hifi", "ont"])) {
         error("ERROR: input_type must be one of either 'hifi' or 'ont'.")
     }
     """

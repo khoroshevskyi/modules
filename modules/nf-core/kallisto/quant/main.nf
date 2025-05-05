@@ -1,11 +1,11 @@
 process KALLISTO_QUANT {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/kallisto:0.51.1--heb0cbe2_0'
-        : 'biocontainers/kallisto:0.51.1--heb0cbe2_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/kallisto:0.51.1--heb0cbe2_0':
+        'biocontainers/kallisto:0.51.1--heb0cbe2_0' }"
 
     input:
     tuple val(meta), path(reads)
@@ -16,10 +16,10 @@ process KALLISTO_QUANT {
     val fragment_length_sd
 
     output:
-    tuple val(meta), path("${prefix}"), emit: results
-    tuple val(meta), path("*.run_info.json"), emit: json_info
-    tuple val(meta), path("*.log"), emit: log
-    path "versions.yml", emit: versions
+    tuple val(meta), path("${prefix}")        , emit: results
+    tuple val(meta), path("*.run_info.json")  , emit: json_info
+    tuple val(meta), path("*.log")            , emit: log
+    path "versions.yml"                       , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -33,23 +33,22 @@ process KALLISTO_QUANT {
     def single_end_params = ''
     if (meta.single_end) {
         if (!(fragment_length =~ /^\d+$/)) {
-            error("fragment_length must be set and numeric for single-end data")
+            error "fragment_length must be set and numeric for single-end data"
         }
         if (!(fragment_length_sd =~ /^\d+$/)) {
-            error("fragment_length_sd must be set and numeric for single-end data")
+            error "fragment_length_sd must be set and numeric for single-end data"
         }
         single_end_params = "--single --fragment-length=${fragment_length} --sd=${fragment_length_sd}"
     }
 
     def strandedness = ''
     if (!args.contains('--fr-stranded') && !args.contains('--rf-stranded')) {
-        strandedness = meta.strandedness == 'forward'
-            ? '--fr-stranded'
-            : meta.strandedness == 'reverse' ? '--rf-stranded' : ''
+        strandedness =  (meta.strandedness == 'forward') ? '--fr-stranded' :
+                        (meta.strandedness == 'reverse') ? '--rf-stranded' : ''
     }
 
     """
-    mkdir -p ${prefix} && kallisto quant \\
+    mkdir -p $prefix && kallisto quant \\
             --threads ${task.cpus} \\
             --index ${index} \\
             ${gtf_input} \\
@@ -57,7 +56,7 @@ process KALLISTO_QUANT {
             ${single_end_params} \\
             ${strandedness} \\
             ${args} \\
-            -o ${prefix} \\
+            -o $prefix \\
             ${reads} 2> >(tee -a ${prefix}/kallisto_quant.log >&2)
 
     cp ${prefix}/kallisto_quant.log ${prefix}.log
@@ -73,7 +72,7 @@ process KALLISTO_QUANT {
     prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    mkdir -p ${prefix}
+    mkdir -p $prefix
     touch ${prefix}.log
     touch ${prefix}.run_info.json
 

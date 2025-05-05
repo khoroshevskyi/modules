@@ -1,21 +1,21 @@
 process TRGT_PLOT {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/trgt:2.1.0--h9ee0642_0'
-        : 'biocontainers/trgt:2.1.0--h9ee0642_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/trgt:2.1.0--h9ee0642_0':
+        'biocontainers/trgt:2.1.0--h9ee0642_0' }"
 
     input:
-    tuple val(meta), path(bam), path(bai), path(vcf), path(tbi), val(repeat_id)
+    tuple val(meta) , path(bam), path(bai), path(vcf), path(tbi), val(repeat_id)
     tuple val(meta2), path(fasta)
     tuple val(meta3), path(fai)
     tuple val(meta4), path(repeats)
 
     output:
     tuple val(meta), path("*.{png,pdf,svg}"), emit: plot
-    path "versions.yml", emit: versions
+    path "versions.yml"                     , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,13 +28,13 @@ process TRGT_PLOT {
 
     """
     trgt plot \\
-        ${args} \\
+        $args \\
         --genome ${fasta} \\
         --repeats ${repeats} \\
         --spanning-reads ${bam} \\
         --vcf ${vcf} \\
         --repeat-id ${repeat_id} \\
-        ${output_arg}
+        $output_arg
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

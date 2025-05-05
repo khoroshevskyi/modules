@@ -1,21 +1,21 @@
 process PICARD_COLLECTMULTIPLEMETRICS {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/picard:3.3.0--hdfd78af_0'
-        : 'biocontainers/picard:3.3.0--hdfd78af_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/picard:3.3.0--hdfd78af_0' :
+        'biocontainers/picard:3.3.0--hdfd78af_0' }"
 
     input:
-    tuple val(meta), path(bam), path(bai)
+    tuple val(meta) , path(bam), path(bai)
     tuple val(meta2), path(fasta)
     tuple val(meta3), path(fai)
 
     output:
     tuple val(meta), path("*_metrics"), emit: metrics
-    tuple val(meta), path("*.pdf"), emit: pdf, optional: true
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.pdf")    , emit: pdf, optional: true
+    path  "versions.yml"              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -26,19 +26,18 @@ process PICARD_COLLECTMULTIPLEMETRICS {
     def reference = fasta ? "--REFERENCE_SEQUENCE ${fasta}" : ""
     def avail_mem = 3072
     if (!task.memory) {
-        log.info('[Picard CollectMultipleMetrics] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.')
-    }
-    else {
-        avail_mem = (task.memory.mega * 0.8).intValue()
+        log.info '[Picard CollectMultipleMetrics] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
+    } else {
+        avail_mem = (task.memory.mega*0.8).intValue()
     }
     """
     picard \\
         -Xmx${avail_mem}M \\
         CollectMultipleMetrics \\
-        ${args} \\
-        --INPUT ${bam} \\
+        $args \\
+        --INPUT $bam \\
         --OUTPUT ${prefix}.CollectMultipleMetrics \\
-        ${reference}
+        $reference
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

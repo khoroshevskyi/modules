@@ -1,18 +1,18 @@
 process RTGTOOLS_PEDFILTER {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/rtg-tools:3.12.1--hdfd78af_0'
-        : 'biocontainers/rtg-tools:3.12.1--hdfd78af_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/rtg-tools:3.12.1--hdfd78af_0':
+        'biocontainers/rtg-tools:3.12.1--hdfd78af_0' }"
 
     input:
     tuple val(meta), path(input)
 
     output:
-    tuple val(meta), path("*.{vcf.gz,ped}"), emit: output
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.{vcf.gz,ped}") , emit: output
+    path "versions.yml"                     , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,8 +24,8 @@ process RTGTOOLS_PEDFILTER {
 
     def extension = args.contains("--vcf") ? "vcf.gz" : "ped"
 
-    if ("${prefix}.${extension}" == "${input}") {
-        error("The input and output file have the same name, please use another ext.prefix.")
+    if( "${prefix}.${extension}" == "${input}" ) {
+        error "The input and output file have the same name, please use another ext.prefix."
     }
 
     def postprocess = extension == "vcf.gz" ? "| rtg bgzip ${args2} -" : ""
@@ -48,8 +48,8 @@ process RTGTOOLS_PEDFILTER {
 
     def extension = args.contains("--vcf") ? "vcf.gz" : "ped"
 
-    if ("${prefix}.${extension}" == "${input}") {
-        error("The input and output file have the same name, please use another ext.prefix.")
+    if( "${prefix}.${extension}" == "${input}" ) {
+        error "The input and output file have the same name, please use another ext.prefix."
     }
 
     """

@@ -1,18 +1,18 @@
 process BLAST_UPDATEBLASTDB {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/blast:2.16.0--h66d330f_4'
-        : 'biocontainers/blast:2.16.0--h66d330f_4'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/blast:2.16.0--h66d330f_4':
+        'biocontainers/blast:2.16.0--h66d330f_4' }"
 
     input:
     tuple val(meta), val(name)
 
     output:
     tuple val(meta), path(prefix), emit: db
-    path "versions.yml", emit: versions
+    path "versions.yml"          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

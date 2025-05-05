@@ -1,18 +1,18 @@
 process SEQTK_MERGEPE {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_1'
-        : 'biocontainers/seqtk:1.4--he4a0461_1'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_1' :
+        'biocontainers/seqtk:1.4--he4a0461_1' }"
 
     input:
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path("*.fastq.gz"), emit: reads
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.fastq.gz") , emit: reads
+    path "versions.yml"                 , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,12 +29,11 @@ process SEQTK_MERGEPE {
             seqtk: \$(echo \$(seqtk 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
         END_VERSIONS
         """
-    }
-    else {
+    } else {
         """
         seqtk \\
             mergepe \\
-            ${args} \\
+            $args \\
             ${reads} \\
             | gzip -n >> ${prefix}.fastq.gz
 

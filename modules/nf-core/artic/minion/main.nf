@@ -1,11 +1,11 @@
 process ARTIC_MINION {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5a/5a747cc579edfc0cb2176b749afc02550ab5de678ae6a40d2cfadeba6c0de25d/data'
-        : 'community.wave.seqera.io/library/artic:1.6.2--d4956cdc155b8612'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5a/5a747cc579edfc0cb2176b749afc02550ab5de678ae6a40d2cfadeba6c0de25d/data' :
+        'community.wave.seqera.io/library/artic:1.6.2--d4956cdc155b8612' }"
 
     input:
     tuple val(meta), path(fastq)
@@ -13,40 +13,40 @@ process ARTIC_MINION {
     tuple val(meta3), path(fasta), path(bed)
 
     output:
-    tuple val(meta), path("${prefix}.*"), emit: results
-    tuple val(meta), path("${prefix}.sorted.bam"), emit: bam
-    tuple val(meta), path("${prefix}.sorted.bam.bai"), emit: bai
-    tuple val(meta), path("${prefix}.trimmed.rg.sorted.bam"), emit: bam_trimmed
-    tuple val(meta), path("${prefix}.trimmed.rg.sorted.bam.bai"), emit: bai_trimmed
-    tuple val(meta), path("${prefix}.primertrimmed.rg.sorted.bam"), emit: bam_primertrimmed
+    tuple val(meta), path("${prefix}.*")                              , emit: results
+    tuple val(meta), path("${prefix}.sorted.bam")                     , emit: bam
+    tuple val(meta), path("${prefix}.sorted.bam.bai")                 , emit: bai
+    tuple val(meta), path("${prefix}.trimmed.rg.sorted.bam")          , emit: bam_trimmed
+    tuple val(meta), path("${prefix}.trimmed.rg.sorted.bam.bai")      , emit: bai_trimmed
+    tuple val(meta), path("${prefix}.primertrimmed.rg.sorted.bam")    , emit: bam_primertrimmed
     tuple val(meta), path("${prefix}.primertrimmed.rg.sorted.bam.bai"), emit: bai_primertrimmed
-    tuple val(meta), path("${prefix}.consensus.fasta"), emit: fasta
-    tuple val(meta), path("${prefix}.pass.vcf.gz"), emit: vcf
-    tuple val(meta), path("${prefix}.pass.vcf.gz.tbi"), emit: tbi
-    tuple val(meta), path("*.json"), optional: true, emit: json
-    path "versions.yml", emit: versions
+    tuple val(meta), path("${prefix}.consensus.fasta")                , emit: fasta
+    tuple val(meta), path("${prefix}.pass.vcf.gz")                    , emit: vcf
+    tuple val(meta), path("${prefix}.pass.vcf.gz.tbi")                , emit: tbi
+    tuple val(meta), path("*.json"), optional:true                    , emit: json
+    path  "versions.yml"                                              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    prefix = task.ext.prefix ?: "${meta.id}"
-    def model_dir_cmd = model_dir ? "--model-dir ${model_dir}" : "--model-dir \$(which artic | sed 's/artic/models/')"
+    def args = task.ext.args   ?: ''
+    prefix   = task.ext.prefix ?: "${meta.id}"
+    def model_dir_cmd   = model_dir   ? "--model-dir $model_dir" : "--model-dir \$(which artic | sed 's/artic/models/')"
     def hd5_plugin_path = task.ext.hd5_plugin_path ? "export HDF5_PLUGIN_PATH=" + task.ext.hd5_plugin_path : "export HDF5_PLUGIN_PATH=/usr/local/lib/python3.6/site-packages/ont_fast5_api/vbz_plugin"
     """
-    ${hd5_plugin_path}
+    $hd5_plugin_path
 
     artic \\
         minion \\
-        ${args} \\
-        --threads ${task.cpus} \\
-        --read-file ${fastq} \\
-        --bed ${bed} \\
-        --ref ${fasta} \\
-        ${model_dir_cmd} \\
-        --model ${model} \\
-        ${prefix}
+        $args \\
+        --threads $task.cpus \\
+        --read-file $fastq \\
+        --bed $bed \\
+        --ref $fasta \\
+        $model_dir_cmd \\
+        --model $model \\
+        $prefix
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

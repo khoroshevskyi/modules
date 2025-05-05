@@ -1,20 +1,20 @@
 process PHYLOFLASH {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/phyloflash:3.4--hdfd78af_1'
-        : 'biocontainers/phyloflash:3.4--hdfd78af_1'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/phyloflash:3.4--hdfd78af_1' :
+        'biocontainers/phyloflash:3.4--hdfd78af_1' }"
 
     input:
     tuple val(meta), path(reads)
-    path silva_db
-    path univec_db
+    path  silva_db
+    path  univec_db
 
     output:
     tuple val(meta), path("${meta.id}*/*"), emit: results
-    path "versions.yml", emit: versions
+    path "versions.yml"                   , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,34 +25,33 @@ process PHYLOFLASH {
     if (meta.single_end) {
         """
         phyloFlash.pl \\
-            ${args} \\
+            $args \\
             -read1 ${reads[0]} \\
-            -lib ${prefix} \\
+            -lib $prefix \\
             -interleaved \\
             -dbhome . \\
-            -CPUs ${task.cpus}
+            -CPUs $task.cpus
 
-        mkdir ${prefix}
-        mv ${prefix}.* ${prefix}
+        mkdir $prefix
+        mv ${prefix}.* $prefix
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             phyloflash: \$(echo \$(phyloFlash.pl -version 2>&1) | sed "s/^.*phyloFlash v//")
         END_VERSIONS
         """
-    }
-    else {
+    } else {
         """
         phyloFlash.pl \\
-            ${args} \\
+            $args \\
             -read1 ${reads[0]} \\
             -read2 ${reads[1]} \\
-            -lib ${prefix} \\
+            -lib $prefix \\
             -dbhome . \\
-            -CPUs ${task.cpus}
+            -CPUs $task.cpus
 
-        mkdir ${prefix}
-        mv ${prefix}.* ${prefix}
+        mkdir $prefix
+        mv ${prefix}.* $prefix
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

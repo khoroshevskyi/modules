@@ -1,11 +1,11 @@
 process VARLOCIRAPTOR_PREPROCESS {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/varlociraptor:8.1.1--hc349b7f_0'
-        : 'biocontainers/varlociraptor:8.1.1--hc349b7f_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/varlociraptor:8.1.1--hc349b7f_0':
+        'biocontainers/varlociraptor:8.1.1--hc349b7f_0' }"
 
     input:
     tuple val(meta), path(bam), path(bai), path(candidates), path(alignment_json)
@@ -15,9 +15,9 @@ process VARLOCIRAPTOR_PREPROCESS {
     output:
     tuple val(meta), path("*.bcf.gz"), emit: bcf_gz, optional: true
     tuple val(meta), path("*.vcf.gz"), emit: vcf_gz, optional: true
-    tuple val(meta), path("*.bcf"), emit: bcf, optional: true
-    tuple val(meta), path("*.vcf"), emit: vcf, optional: true
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.bcf")   , emit: bcf   , optional: true
+    tuple val(meta), path("*.vcf")   , emit: vcf   , optional: true
+    path "versions.yml"              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,10 +28,10 @@ process VARLOCIRAPTOR_PREPROCESS {
     def alignment_properties_json = alignment_json ? "--alignment-properties ${alignment_json}" : ""
     """
     varlociraptor preprocess variants \\
-        ${fasta} \\
-        ${alignment_properties_json} \\
-        --bam ${bam} \\
-        --candidates ${candidates} \\
+        $fasta \\
+        $alignment_properties_json \\
+        --bam $bam \\
+        --candidates $candidates \\
         ${args} \\
         > ${prefix}
 

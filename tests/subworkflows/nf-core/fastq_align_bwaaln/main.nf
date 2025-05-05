@@ -8,74 +8,70 @@ include { FASTQ_ALIGN_BWAALN } from '../../../../subworkflows/nf-core/fastq_alig
 
 workflow test_fastq_align_bwaaln_singleend {
 
-    input = Channel.of(
-        [
-            [id: 'test', single_end: true],
-            [file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true)],
-        ]
-    )
+    input = Channel.of([
+            [ id:'test', single_end:true ], // meta map
+            [ file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true) ]
+        ])
     fasta = [
         [id: 'test'],
-        file(params.test_data['sarscov2']['genome']['genome_fasta'], checkIfExists: true),
+        file(params.test_data['sarscov2']['genome']['genome_fasta'], checkIfExists: true)
     ]
 
-    BWA_INDEX(fasta)
-    FASTQ_ALIGN_BWAALN(input, BWA_INDEX.out.index)
+    BWA_INDEX ( fasta )
+    FASTQ_ALIGN_BWAALN ( input, BWA_INDEX.out.index )
 }
 
 workflow test_fastq_align_bwaaln_paired_end {
 
-    input = Channel.of(
-        [
-            [id: 'test', single_end: false],
-            [
-                file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true),
-                file(params.test_data['sarscov2']['illumina']['test_2_fastq_gz'], checkIfExists: true),
-            ],
-        ]
-    )
-    fasta = [
+    input = Channel.of([
+                [ id:'test', single_end:false ], // meta map
+                [
+                    file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true),
+                    file(params.test_data['sarscov2']['illumina']['test_2_fastq_gz'], checkIfExists: true)
+                ]
+    ])
+            fasta = [
         [id: 'test'],
-        file(params.test_data['sarscov2']['genome']['genome_fasta'], checkIfExists: true),
+        file(params.test_data['sarscov2']['genome']['genome_fasta'], checkIfExists: true)
     ]
 
-    BWA_INDEX(fasta)
-    FASTQ_ALIGN_BWAALN(input, BWA_INDEX.out.index)
+    BWA_INDEX ( fasta )
+    FASTQ_ALIGN_BWAALN ( input, BWA_INDEX.out.index )
+
 }
 
 workflow test_fastq_align_bwaaln_both {
 
     input = Channel.fromList(
         [
-            [[id: 'test', single_end: false], [file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true), file(params.test_data['sarscov2']['illumina']['test_2_fastq_gz'], checkIfExists: true)]],
-            [[id: 'test2', single_end: true], [file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true)]],
+            [ [ id:'test',  single_end:false ], [ file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true), file(params.test_data['sarscov2']['illumina']['test_2_fastq_gz'], checkIfExists: true) ] ],
+            [ [ id:'test2', single_end:true ],  [ file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true) ] ]
         ]
     )
     fasta = [
         [id: 'test'],
-        file(params.test_data['sarscov2']['genome']['genome_fasta'], checkIfExists: true),
+        file(params.test_data['sarscov2']['genome']['genome_fasta'], checkIfExists: true)
     ]
 
-    BWA_INDEX(fasta)
-    FASTQ_ALIGN_BWAALN(input, BWA_INDEX.out.index)
+    BWA_INDEX ( fasta )
+    FASTQ_ALIGN_BWAALN ( input, BWA_INDEX.out.index )
+
 }
 
 workflow test_fastq_align_bwa_multiref {
 
     input = Channel.fromList(
         [
-            [[id: 'test', single_end: false], [file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true), file(params.test_data['sarscov2']['illumina']['test_2_fastq_gz'], checkIfExists: true)]],
-            [[id: 'test2', single_end: true], [file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true)]],
+            [ [ id:'test',  single_end:false ], [ file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true), file(params.test_data['sarscov2']['illumina']['test_2_fastq_gz'], checkIfExists: true) ] ],
+            [ [ id:'test2', single_end:true ],  [ file(params.test_data['sarscov2']['illumina']['test_1_fastq_gz'], checkIfExists: true) ] ]
         ]
     )
 
-    fasta = Channel.fromList(
-        [
-            [[id: 'reftest'], file(params.test_data['sarscov2']['genome']['genome_fasta'], checkIfExists: true)],
-            [[id: 'reftest2'], file(params.test_data['homo_sapiens']['genome']['genome_fasta'], checkIfExists: true)],
-        ]
-    )
+    fasta = Channel.fromList( [
+        [ [id: 'reftest'], file(params.test_data['sarscov2']['genome']['genome_fasta'], checkIfExists: true) ],
+        [ [id: 'reftest2'], file(params.test_data['homo_sapiens']['genome']['genome_fasta'], checkIfExists: true) ]
+    ] )
 
-    BWA_INDEX(fasta)
-    FASTQ_ALIGN_BWAALN(input, BWA_INDEX.out.index)
+    BWA_INDEX ( fasta )
+    FASTQ_ALIGN_BWAALN ( input, BWA_INDEX.out.index )
 }

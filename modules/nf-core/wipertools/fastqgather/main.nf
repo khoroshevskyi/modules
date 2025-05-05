@@ -1,35 +1,35 @@
 process WIPERTOOLS_FASTQGATHER {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/wipertools:1.1.5--pyhdfd78af_0'
-        : 'biocontainers/wipertools:1.1.5--pyhdfd78af_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/wipertools:1.1.5--pyhdfd78af_0':
+        'biocontainers/wipertools:1.1.5--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), path(fastq)
 
     output:
     tuple val(meta), path("${prefix}.fastq.gz"), emit: gathered_fastq
-    path "versions.yml", emit: versions
+    path "versions.yml"                        , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
-    prefix = task.ext.prefix ?: "${meta.id}_gather"
+    prefix   = task.ext.prefix ?: "${meta.id}_gather"
 
     // Check if the output file name is in the list of input files
     if (fastq.any { it.name == "${prefix}.fastq.gz" }) {
-        error('Output file name "${prefix}.fastq.gz}" matches one of the input files. Use \"task.ext.prefix\" to disambiguate!.')
+        error 'Output file name "${prefix}.fastq.gz}" matches one of the input files. Use \"task.ext.prefix\" to disambiguate!.'
     }
 
     """
     wipertools \\
         fastqgather \\
-        -i ${fastq} \\
+        -i $fastq \\
         -o ${prefix}.fastq.gz \\
         ${args}
 
@@ -40,11 +40,11 @@ process WIPERTOOLS_FASTQGATHER {
     """
 
     stub:
-    prefix = task.ext.prefix ?: "${meta.id}_gather"
+    prefix      = task.ext.prefix ?: "${meta.id}_gather"
 
     // Check if the output file name is in the list of input files
     if (fastq.any { it.name == "${prefix}.fastq.gz" }) {
-        error('Output file name "${prefix}.fastq.gz}" matches one of the input files. Use \"task.ext.prefix\" to disambiguate!.')
+        error 'Output file name "${prefix}.fastq.gz}" matches one of the input files. Use \"task.ext.prefix\" to disambiguate!.'
     }
     """
     echo "" | gzip > ${prefix}.fastq.gz

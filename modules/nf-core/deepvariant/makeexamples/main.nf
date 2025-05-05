@@ -1,5 +1,5 @@
 process DEEPVARIANT_MAKEEXAMPLES {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_high'
 
     //Conda is not supported at the moment
@@ -13,10 +13,10 @@ process DEEPVARIANT_MAKEEXAMPLES {
     tuple val(meta5), path(par_bed)
 
     output:
-    tuple val(meta), path("${prefix}.examples.tfrecord-*-of-*.gz{,.example_info.json}"), emit: examples
-    tuple val(meta), path("${prefix}.gvcf.tfrecord-*-of-*.gz"), emit: gvcf
-    tuple val(meta), path("${prefix}_call_variant_outputs.examples.tfrecord-*-of-*.gz", arity: "0..*"), emit: small_model_calls
-    path "versions.yml", emit: versions
+    tuple val(meta), path("${prefix}.examples.tfrecord-*-of-*.gz{,.example_info.json}"),    emit: examples
+    tuple val(meta), path("${prefix}.gvcf.tfrecord-*-of-*.gz"),        emit: gvcf
+    tuple val(meta), path("${prefix}_call_variant_outputs.examples.tfrecord-*-of-*.gz",  arity: "0..*"),        emit: small_model_calls
+    path "versions.yml",  emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,7 +24,7 @@ process DEEPVARIANT_MAKEEXAMPLES {
     script:
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
-        error("DEEPVARIANT module does not support Conda. Please use Docker / Singularity / Podman instead.")
+        error "DEEPVARIANT module does not support Conda. Please use Docker / Singularity / Podman instead."
     }
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
@@ -53,7 +53,7 @@ process DEEPVARIANT_MAKEEXAMPLES {
     prefix = task.ext.prefix ?: "${meta.id}"
     """
     printf -v SHARD_COUNT "%04d" ${task.cpus}
-    for i in \$( seq -f "%04g" 0 ${task.cpus - 1} )
+    for i in \$( seq -f "%04g" 0 ${task.cpus-1} )
     do
         echo "" | gzip > ${prefix}.examples.tfrecord-\$i-of-\$SHARD_COUNT.tfrecord.gz
         touch ${prefix}.examples.tfrecord-\$i-of-\$SHARD_COUNT.tfrecord.gz.example_info.json

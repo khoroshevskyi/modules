@@ -1,23 +1,23 @@
 process INTERPROSCAN {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_medium'
     label 'process_long'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/interproscan:5.59_91.0--hec16e2b_1'
-        : 'biocontainers/interproscan:5.59_91.0--hec16e2b_1'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/interproscan:5.59_91.0--hec16e2b_1' :
+        'biocontainers/interproscan:5.59_91.0--hec16e2b_1' }"
 
     input:
     tuple val(meta), path(fasta)
-    path interproscan_database, stageAs: 'data'
+    path(interproscan_database, stageAs: 'data')
 
     output:
-    tuple val(meta), path('*.tsv'), optional: true, emit: tsv
-    tuple val(meta), path('*.xml'), optional: true, emit: xml
+    tuple val(meta), path('*.tsv') , optional: true, emit: tsv
+    tuple val(meta), path('*.xml') , optional: true, emit: xml
     tuple val(meta), path('*.gff3'), optional: true, emit: gff3
     tuple val(meta), path('*.json'), optional: true, emit: json
-    path "versions.yml", emit: versions
+    path "versions.yml"            , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

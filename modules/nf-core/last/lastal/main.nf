@@ -1,5 +1,5 @@
 process LAST_LASTAL {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
@@ -8,13 +8,13 @@ process LAST_LASTAL {
         : 'community.wave.seqera.io/library/last:1611--e1193b3871fa0975'}"
 
     input:
-    tuple val(meta), path(fastx), path(param_file)
+    tuple val(meta), path(fastx), path (param_file)
     path index
 
     output:
     tuple val(meta), path("*.maf.gz"), emit: maf
-    tuple val(meta), path("*.tsv"), emit: multiqc
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.tsv")   , emit: multiqc
+    path "versions.yml"              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -22,9 +22,9 @@ process LAST_LASTAL {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def trained_params = param_file ? "-p ${param_file}" : ''
+    def trained_params = param_file ? "-p ${param_file}"  : ''
     """
-    INDEX_NAME=\$(basename \$(ls ${index}/*.des) .des)
+    INDEX_NAME=\$(basename \$(ls $index/*.des) .des)
     set -o pipefail
 
     function calculate_psl_metrics() {
@@ -40,16 +40,16 @@ process LAST_LASTAL {
         }
         END {
             percentSimilarity = (totalAlignmentLength > 0) ? (totalMatches / totalAlignmentLength * 100) : 0;
-            print "${meta.id}" "\t" totalAlignmentLength "\t" percentSimilarity;  # Data in TSV format
+            print "$meta.id" "\t" totalAlignmentLength "\t" percentSimilarity;  # Data in TSV format
         }'
     }
 
     lastal \\
-        -P ${task.cpus} \\
-        ${trained_params} \\
-        ${args} \\
+        -P $task.cpus \\
+        $trained_params \\
+        $args \\
         ${index}/\$INDEX_NAME \\
-        ${fastx} |
+        $fastx |
         tee >(gzip --no-name  > ${prefix}.maf.gz) |
         maf-convert psl |
         calculate_psl_metrics > ${prefix}.tsv
@@ -63,7 +63,7 @@ process LAST_LASTAL {
     stub:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def trained_params = param_file ? "-p ${param_file}" : ''
+    def trained_params = param_file ? "-p ${param_file}"  : ''
     """
     INDEX_NAME=STUB
     echo stub | gzip --no-name > ${prefix}.\$INDEX_NAME.maf.gz

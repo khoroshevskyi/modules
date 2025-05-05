@@ -1,17 +1,17 @@
 process BIOBAMBAM_BAMMARKDUPLICATES2 {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ? 'https://depot.galaxyproject.org/singularity/biobambam:2.0.183--h9f5acd7_1' : 'biocontainers/biobambam:2.0.183--h9f5acd7_1'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ? 'https://depot.galaxyproject.org/singularity/biobambam:2.0.183--h9f5acd7_1' : 'biocontainers/biobambam:2.0.183--h9f5acd7_1'}"
 
     input:
     tuple val(meta), path(bam)
 
     output:
-    tuple val(meta), path("*.bam"), emit: bam
+    tuple val(meta), path("*.bam")        , emit: bam
     tuple val(meta), path("*.metrics.txt"), emit: metrics
-    path "versions.yml", emit: versions
+    path "versions.yml"                   , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,12 +21,12 @@ process BIOBAMBAM_BAMMARKDUPLICATES2 {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     bammarkduplicates2 \\
-        ${args} \\
-        I=${bam} \\
+        $args \\
+        I=$bam \\
         O=${prefix}.bam \\
         M=${prefix}.metrics.txt \\
-        tmpfile=${prefix} \\
-        markthreads=${task.cpus}
+        tmpfile=$prefix \\
+        markthreads=$task.cpus
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

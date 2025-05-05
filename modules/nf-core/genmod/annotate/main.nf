@@ -1,18 +1,18 @@
 process GENMOD_ANNOTATE {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/genmod:3.10.1--pyh7e72e81_0'
-        : 'biocontainers/genmod:3.10.1--pyh7e72e81_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/genmod:3.10.1--pyh7e72e81_0':
+        'biocontainers/genmod:3.10.1--pyh7e72e81_0' }"
 
     input:
     tuple val(meta), path(input_vcf)
 
     output:
     tuple val(meta), path("*_annotate.vcf"), emit: vcf
-    path "versions.yml", emit: versions
+    path "versions.yml"                    , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,9 +23,9 @@ process GENMOD_ANNOTATE {
     """
     genmod \\
         annotate \\
-        ${args} \\
+        $args \\
         --outfile ${prefix}_annotate.vcf \\
-        ${input_vcf}
+        $input_vcf
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

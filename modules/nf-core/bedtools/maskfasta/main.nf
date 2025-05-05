@@ -1,19 +1,19 @@
 process BEDTOOLS_MASKFASTA {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_0'
-        : 'biocontainers/bedtools:2.31.1--hf5e1c6e_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_0' :
+        'biocontainers/bedtools:2.31.1--hf5e1c6e_0' }"
 
     input:
     tuple val(meta), path(bed)
-    path fasta
+    path  fasta
 
     output:
     tuple val(meta), path("*.fa"), emit: fasta
-    path "versions.yml", emit: versions
+    path "versions.yml"          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,9 +24,9 @@ process BEDTOOLS_MASKFASTA {
     """
     bedtools \\
         maskfasta \\
-        ${args} \\
-        -fi ${fasta} \\
-        -bed ${bed} \\
+        $args \\
+        -fi $fasta \\
+        -bed $bed \\
         -fo ${prefix}.fa
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

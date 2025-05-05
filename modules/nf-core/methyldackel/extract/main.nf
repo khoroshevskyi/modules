@@ -1,11 +1,11 @@
 process METHYLDACKEL_EXTRACT {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/methyldackel:0.6.1--he4a0461_7'
-        : 'biocontainers/methyldackel:0.6.1--he4a0461_7'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/methyldackel:0.6.1--he4a0461_7' :
+        'biocontainers/methyldackel:0.6.1--he4a0461_7' }"
 
     input:
     tuple val(meta), path(bam), path(bai)
@@ -13,9 +13,9 @@ process METHYLDACKEL_EXTRACT {
     path fai
 
     output:
-    tuple val(meta), path("*.bedGraph"), optional: true, emit: bedgraph
+    tuple val(meta), path("*.bedGraph") , optional: true, emit: bedgraph
     tuple val(meta), path("*.methylKit"), optional: true, emit: methylkit
-    path "versions.yml", emit: versions
+    path  "versions.yml"                                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,9 +24,9 @@ process METHYLDACKEL_EXTRACT {
     def args = task.ext.args ?: ''
     """
     MethylDackel extract \\
-        ${args} \\
-        ${fasta} \\
-        ${bam}
+        $args \\
+        $fasta \\
+        $bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

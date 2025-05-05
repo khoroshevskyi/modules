@@ -1,11 +1,11 @@
 process STRANGER {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/stranger:0.9.4--pyhdfd78af_0'
-        : 'biocontainers/stranger:0.9.4--pyhdfd78af_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/stranger:0.9.4--pyhdfd78af_0':
+        'biocontainers/stranger:0.9.4--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), path(vcf)
@@ -13,7 +13,7 @@ process STRANGER {
 
     output:
     tuple val(meta), path("*.gz"), emit: vcf
-    path "versions.yml", emit: versions
+    path "versions.yml"          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,16 +21,14 @@ process STRANGER {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}_stranger"
-    def options_variant_catalog = variant_catalog ? "--repeats-file ${variant_catalog}" : ""
+    def options_variant_catalog = variant_catalog ? "--repeats-file $variant_catalog" : ""
 
-    if ("${vcf}" == "${prefix}.vcf.gz") {
-        error("Input and output names are the same, use \"task.ext.prefix\" to disambiguate!")
-    }
+    if ("${vcf}" == "${prefix}.vcf.gz") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     """
     stranger \\
-        ${args} \\
-        ${vcf} \\
-        ${options_variant_catalog} | gzip --no-name > ${prefix}.vcf.gz
+        $args \\
+        $vcf \\
+        $options_variant_catalog | gzip --no-name > ${prefix}.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -40,10 +38,8 @@ process STRANGER {
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}_stranger"
-
-    if ("${vcf}" == "${prefix}.vcf.gz") {
-        error("Input and output names are the same, use \"task.ext.prefix\" to disambiguate!")
-    }
+    
+    if ("${vcf}" == "${prefix}.vcf.gz") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     """
     echo "" | gzip > ${prefix}.vcf.gz
 

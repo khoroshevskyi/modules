@@ -8,31 +8,28 @@ include { VARLOCIRAPTOR_PREPROCESS                  } from '../../../../../modul
 workflow test_varlociraptor_preprocess {
 
     bam = [
-        [id: 'test', single_end: false],
+        [ id:'test', single_end:false ], // meta map
         file(params.test_data['sarscov2']['illumina']['test_paired_end_sorted_bam'], checkIfExists: true),
     ]
 
     fasta = [
-        [id: 'test', single_end: false],
-        file(params.test_data['sarscov2']['genome']['genome_fasta'], checkIfExists: true),
+        [ id:'test', single_end:false ], // meta map
+        file(params.test_data['sarscov2']['genome']['genome_fasta'], checkIfExists: true)
     ]
 
-    fai = [
-        [id: 'test', single_end: false],
-        file(params.test_data['sarscov2']['genome']['genome_fasta_fai'], checkIfExists: true),
+    fai= [
+        [ id:'test', single_end:false ], // meta map
+        file(params.test_data['sarscov2']['genome']['genome_fasta_fai'], checkIfExists: true)
     ]
 
-    VARLOCIRAPTOR_ESTIMATEALIGNMENTPROPERTIES(bam, fasta, fai)
+    VARLOCIRAPTOR_ESTIMATEALIGNMENTPROPERTIES( bam, fasta, fai)
 
-    input = Channel.of(
-            [
-                [id: 'test', single_end: false],
-                file(params.test_data['sarscov2']['illumina']['test_paired_end_sorted_bam'], checkIfExists: true),
-                file(params.test_data['sarscov2']['illumina']['test_paired_end_sorted_bam_bai'], checkIfExists: true),
-                file(params.test_data['sarscov2']['illumina']['test_vcf'], checkIfExists: true),
-            ]
-        )
-        .collect()
+    input = Channel.of([
+        [ id:'test', single_end:false ], // meta map
+        file(params.test_data['sarscov2']['illumina']['test_paired_end_sorted_bam'], checkIfExists: true),
+        file(params.test_data['sarscov2']['illumina']['test_paired_end_sorted_bam_bai'], checkIfExists: true),
+        file(params.test_data['sarscov2']['illumina']['test_vcf'], checkIfExists: true),
+    ]).collect()
 
-    VARLOCIRAPTOR_PREPROCESS(input.join(VARLOCIRAPTOR_ESTIMATEALIGNMENTPROPERTIES.out.alignment_properties_json), fasta, fai)
+    VARLOCIRAPTOR_PREPROCESS ( input.join( VARLOCIRAPTOR_ESTIMATEALIGNMENTPROPERTIES.out.alignment_properties_json), fasta, fai )
 }

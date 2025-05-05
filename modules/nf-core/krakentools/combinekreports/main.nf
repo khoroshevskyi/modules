@@ -2,9 +2,9 @@ process KRAKENTOOLS_COMBINEKREPORTS {
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/krakentools:1.2--pyh5e36f6f_0'
-        : 'biocontainers/krakentools:1.2--pyh5e36f6f_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/krakentools:1.2--pyh5e36f6f_0':
+        'biocontainers/krakentools:1.2--pyh5e36f6f_0' }"
 
     input:
     tuple val(meta), path(kreports)
@@ -19,8 +19,7 @@ process KRAKENTOOLS_COMBINEKREPORTS {
     script:
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
-    def VERSION = '1.2'
-    // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+    def VERSION = '1.2' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
     combine_kreports.py \\
         -r ${kreports} \\
@@ -36,8 +35,7 @@ process KRAKENTOOLS_COMBINEKREPORTS {
     stub:
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
-    def VERSION = '1.2'
-    // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+    def VERSION = '1.2' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
     touch ${prefix}.txt
 

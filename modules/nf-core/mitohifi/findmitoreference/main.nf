@@ -1,5 +1,5 @@
 process MITOHIFI_FINDMITOREFERENCE {
-    tag "${species}"
+    tag "$species"
     label 'process_single'
 
     // Docker image available at the project github repository
@@ -10,21 +10,20 @@ process MITOHIFI_FINDMITOREFERENCE {
 
     output:
     tuple val(meta), path("*.fasta"), emit: fasta
-    tuple val(meta), path("*.gb"), emit: gb
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.gb")   , emit: gb
+    path "versions.yml"             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
-    def VERSION = '3.2.3'
-    // WARN: Incorrect version information is provided by tool on CLI. Please update this string when bumping container versions.
+    def VERSION = '3.2.3' // WARN: Incorrect version information is provided by tool on CLI. Please update this string when bumping container versions.
     """
     findMitoReference.py \\
-        --species "${species}" \\
+        --species "$species" \\
         --outfolder . \\
-        ${args}
+        $args
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

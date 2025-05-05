@@ -1,18 +1,18 @@
 process SNPSIFT_SPLIT {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/snpsift:4.3.1t--hdfd78af_3'
-        : 'biocontainers/snpsift:4.3.1t--hdfd78af_3'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/snpsift:4.3.1t--hdfd78af_3' :
+        'biocontainers/snpsift:4.3.1t--hdfd78af_3' }"
 
     input:
     tuple val(meta), path(vcf)
 
     output:
     tuple val(meta), path("*.vcf"), emit: out_vcfs
-    path "versions.yml", emit: versions
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,22 +24,21 @@ process SNPSIFT_SPLIT {
         """
         SnpSift \\
             split \\
-            ${args} \\
-            ${vcf}
+            $args \\
+            $vcf
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             snpsift: \$( echo \$(SnpSift split -h 2>&1) | sed 's/^.*version //' | sed 's/(.*//' | sed 's/t//g' )
         END_VERSIONS
         """
-    }
-    else {
+    } else {
         """
         SnpSift \\
             split \\
             -j \\
-            ${args} \\
-            ${vcf} \\
+            $args \\
+            $vcf \\
             > ${prefix}.joined.vcf
 
         cat <<-END_VERSIONS > versions.yml
@@ -48,4 +47,5 @@ process SNPSIFT_SPLIT {
         END_VERSIONS
         """
     }
+
 }

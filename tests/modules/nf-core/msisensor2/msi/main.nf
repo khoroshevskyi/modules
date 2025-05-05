@@ -3,7 +3,7 @@
 nextflow.enable.dsl = 2
 
 include { MSISENSOR2_SCAN } from '../../../../../modules/nf-core/msisensor2/scan/main.nf'
-include { MSISENSOR2_MSI  } from '../../../../../modules/nf-core/msisensor2/msi/main.nf'
+include { MSISENSOR2_MSI } from '../../../../../modules/nf-core/msisensor2/msi/main.nf'
 
 workflow test_msisensor2_msi_tumor_only {
 
@@ -11,10 +11,10 @@ workflow test_msisensor2_msi_tumor_only {
         file(params.test_data['homo_sapiens']['genome']['genome_fasta'], checkIfExists: true)
     ]
 
-    MSISENSOR2_SCAN(reference, "outputfile")
+    MSISENSOR2_SCAN ( reference, "outputfile" )
 
     input = [
-        [id: 'test'],
+        [ id:'test' ],
         file(params.test_data['homo_sapiens']['illumina']['test_paired_end_sorted_bam'], checkIfExists: true),
         file(params.test_data['homo_sapiens']['illumina']['test_paired_end_sorted_bam_bai'], checkIfExists: true),
         [],
@@ -22,7 +22,7 @@ workflow test_msisensor2_msi_tumor_only {
         [],
     ]
 
-    MSISENSOR2_MSI(input, MSISENSOR2_SCAN.out.scan, [])
+    MSISENSOR2_MSI ( input, MSISENSOR2_SCAN.out.scan, [] )
 }
 
 
@@ -32,10 +32,10 @@ workflow test_msisensor2_msi_tumor_normal {
         file(params.test_data['homo_sapiens']['genome']['genome_fasta'], checkIfExists: true)
     ]
 
-    MSISENSOR2_SCAN(reference, "outputfile")
+    MSISENSOR2_SCAN ( reference, "outputfile" )
 
     input = [
-        [id: 'test'],
+        [ id:'test' ],
         file(params.test_data['homo_sapiens']['illumina']['test_paired_end_sorted_bam'], checkIfExists: true),
         file(params.test_data['homo_sapiens']['illumina']['test_paired_end_sorted_bam_bai'], checkIfExists: true),
         file(params.test_data['homo_sapiens']['illumina']['test2_paired_end_sorted_bam'], checkIfExists: true),
@@ -43,13 +43,13 @@ workflow test_msisensor2_msi_tumor_normal {
         [],
     ]
 
-    MSISENSOR2_MSI(input, MSISENSOR2_SCAN.out.scan, [])
+    MSISENSOR2_MSI ( input, MSISENSOR2_SCAN.out.scan, [] )
 }
 
 workflow test_msisensor2_msi_tumor_only_ml {
 
     input = [
-        [id: 'test'],
+        [ id:'test' ],
         file('https://github.com/niu-lab/msisensor2/raw/master/test/example.tumor.only.hg19.bam', checkIfExists: true),
         file('https://github.com/niu-lab/msisensor2/raw/master/test/example.tumor.only.hg19.bam.bai', checkIfExists: true),
         [],
@@ -80,5 +80,5 @@ workflow test_msisensor2_msi_tumor_only_ml {
         checkIfExists: true
     )
 
-    MSISENSOR2_MSI(input, [], models.collect())
+    MSISENSOR2_MSI ( input, [], models.collect() )
 }

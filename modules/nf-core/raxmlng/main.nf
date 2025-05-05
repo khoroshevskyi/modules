@@ -2,17 +2,17 @@ process RAXMLNG {
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/raxml-ng:1.0.3--h32fcf60_0'
-        : 'biocontainers/raxml-ng:1.0.3--h32fcf60_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/raxml-ng:1.0.3--h32fcf60_0' :
+        'biocontainers/raxml-ng:1.0.3--h32fcf60_0' }"
 
     input:
     path alignment
 
     output:
     path "*.raxml.bestTree", emit: phylogeny
-    path "*.raxml.support", optional: true, emit: phylogeny_bootstrapped
-    path "versions.yml", emit: versions
+    path "*.raxml.support" , optional:true, emit: phylogeny_bootstrapped
+    path "versions.yml"    , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,9 +21,9 @@ process RAXMLNG {
     def args = task.ext.args ?: ''
     """
     raxml-ng \\
-        ${args} \\
-        --msa ${alignment} \\
-        --threads ${task.cpus} \\
+        $args \\
+        --msa $alignment \\
+        --threads $task.cpus \\
         --prefix output
 
     cat <<-END_VERSIONS > versions.yml

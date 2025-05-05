@@ -1,5 +1,5 @@
 process SPACERANGER_MKREF {
-    tag "${fasta}"
+    tag "$fasta"
     label 'process_high'
 
     container "nf-core/spaceranger:3.1.3"
@@ -11,7 +11,7 @@ process SPACERANGER_MKREF {
 
     output:
     path "${reference_name}", emit: reference
-    path "versions.yml", emit: versions
+    path "versions.yml"     , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -19,7 +19,7 @@ process SPACERANGER_MKREF {
     script:
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
-        error("SPACERANGER_MKREF module does not support Conda. Please use Docker / Singularity / Podman instead.")
+        error "SPACERANGER_MKREF module does not support Conda. Please use Docker / Singularity / Podman instead."
     }
     def args = task.ext.args ?: ''
     // --localcores is passed to the martian runtime and specifies the number of allocated jobs
@@ -28,13 +28,13 @@ process SPACERANGER_MKREF {
     """
     spaceranger \\
         mkref \\
-        --genome=${reference_name} \\
-        --fasta=${fasta} \\
-        --genes=${gtf} \\
+        --genome=$reference_name \\
+        --fasta=$fasta \\
+        --genes=$gtf \\
         --localcores=${task.cpus} \\
         --localmem=${task.memory.toGiga()} \\
         --nthreads=${task.cpus} \\
-        ${args}
+        $args
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -45,10 +45,10 @@ process SPACERANGER_MKREF {
     stub:
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
-        error("SPACERANGER_COUNT module does not support Conda. Please use Docker / Singularity / Podman instead.")
+        error "SPACERANGER_COUNT module does not support Conda. Please use Docker / Singularity / Podman instead."
     }
     """
-    mkdir -p ${reference_name}
+    mkdir -p $reference_name
 
     touch ${reference_name}/genome.fa
     touch ${reference_name}/genome.fa.fai

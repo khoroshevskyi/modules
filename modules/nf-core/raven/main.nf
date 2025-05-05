@@ -1,19 +1,19 @@
 process RAVEN {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/raven-assembler:1.6.1--h2e03b76_0'
-        : 'biocontainers/raven-assembler:1.6.1--h2e03b76_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/raven-assembler:1.6.1--h2e03b76_0' :
+        'biocontainers/raven-assembler:1.6.1--h2e03b76_0' }"
 
     input:
     tuple val(meta), path(reads)
 
     output:
     tuple val(meta), path("*.fasta.gz"), emit: fasta
-    tuple val(meta), path("*.gfa.gz"), emit: gfa
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.gfa.gz")  , emit: gfa
+    path "versions.yml"                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,10 +24,10 @@ process RAVEN {
     """
     # run tool
     raven \\
-        -t ${task.cpus} \\
+        -t $task.cpus \\
         --graphical-fragment-assembly ${prefix}.gfa \\
-        ${args} \\
-        ${reads} | \\
+        $args \\
+        $reads | \\
         gzip -c > ${prefix}.fasta.gz
 
     # compress assembly graph

@@ -1,11 +1,11 @@
 process ULTRA_INDEX {
-    tag "${gtf}"
+    tag "$gtf"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/ultra_bioinformatics:0.1--pyh7cba7a3_1'
-        : 'biocontainers/ultra_bioinformatics:0.1--pyh7cba7a3_1'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/ultra_bioinformatics:0.1--pyh7cba7a3_1':
+        'biocontainers/ultra_bioinformatics:0.1--pyh7cba7a3_1' }"
 
     input:
     path fasta
@@ -13,7 +13,7 @@ process ULTRA_INDEX {
 
     output:
     tuple path("*.pickle"), path("*.db"), emit: index
-    path "versions.yml", emit: versions
+    path "versions.yml"                 , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,9 +24,9 @@ process ULTRA_INDEX {
     """
     uLTRA \\
         index \\
-        ${args} \\
-        ${fasta} \\
-        ${gtf} \\
+        $args \\
+        $fasta \\
+        $gtf \\
         ./
 
     cat <<-END_VERSIONS > versions.yml

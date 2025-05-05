@@ -1,18 +1,18 @@
 process RRNATRANSCRIPTS {
-    tag "${gtf}"
+    tag "$gtf"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/python:3.12'
-        : 'biocontainers/python:3.12'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/python:3.12' :
+        'biocontainers/python:3.12' }"
 
     input:
-    path gtf
+    path(gtf)
 
     output:
-    path ("*rrna_intervals.gtf"), emit: rrna_gtf, optional: true
-    path "versions.yml", emit: versions
+    path("*rrna_intervals.gtf") , emit: rrna_gtf, optional: true
+    path "versions.yml"         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

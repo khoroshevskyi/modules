@@ -1,19 +1,19 @@
 process BRACKEN_BUILD {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/bracken:2.9--py38h2494328_0'
-        : 'biocontainers/bracken:2.9--py38h2494328_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/bracken:2.9--py38h2494328_0':
+        'biocontainers/bracken:2.9--py38h2494328_0' }"
 
     input:
     tuple val(meta), path(kraken2db)
 
     output:
-    tuple val(meta), path(kraken2db, includeInputs: true), emit: db
+    tuple val(meta), path(kraken2db               , includeInputs: true), emit: db
     tuple val(meta), path("${kraken2db}/database*", includeInputs: true), emit: bracken_files
-    path "versions.yml", emit: versions
+    path "versions.yml"                                  , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -22,9 +22,9 @@ process BRACKEN_BUILD {
     def args = task.ext.args ?: ''
     """
     bracken-build \\
-        ${args} \\
-        -t ${task.cpus} \\
-        -d ${kraken2db}
+        $args \\
+        -t $task.cpus \\
+        -d $kraken2db
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

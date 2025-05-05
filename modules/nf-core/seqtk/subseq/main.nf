@@ -1,36 +1,36 @@
 process SEQTK_SUBSEQ {
-    tag "${sequences}"
+    tag "$sequences"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_1'
-        : 'biocontainers/seqtk:1.4--he4a0461_1'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_1' :
+        'biocontainers/seqtk:1.4--he4a0461_1' }"
 
     input:
     tuple val(meta), path(sequences)
     path filter_list
 
     output:
-    tuple val(meta), path("*.gz"), emit: sequences
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.gz"),  emit: sequences
+    path "versions.yml",            emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
+    def args   = task.ext.args   ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def ext = "fa"
-    if ("${sequences}" ==~ /.+\.fq|.+\.fq.gz|.+\.fastq|.+\.fastq.gz/) {
+    if ("$sequences" ==~ /.+\.fq|.+\.fq.gz|.+\.fastq|.+\.fastq.gz/) {
         ext = "fq"
     }
     """
     seqtk \\
         subseq \\
-        ${args} \\
-        ${sequences} \\
-        ${filter_list} | \\
+        $args \\
+        $sequences \\
+        $filter_list | \\
         gzip --no-name > ${sequences}${prefix}.${ext}.gz
 
     cat <<-END_VERSIONS > versions.yml
@@ -42,7 +42,7 @@ process SEQTK_SUBSEQ {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     def ext = "fa"
-    if ("${sequences}" ==~ /.+\.fq|.+\.fq.gz|.+\.fastq|.+\.fastq.gz/) {
+    if ("$sequences" ==~ /.+\.fq|.+\.fq.gz|.+\.fastq|.+\.fastq.gz/) {
         ext = "fq"
     }
     """

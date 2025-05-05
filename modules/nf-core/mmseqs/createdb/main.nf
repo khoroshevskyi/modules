@@ -1,18 +1,18 @@
 process MMSEQS_CREATEDB {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/mmseqs2:17.b804f--hd6d6fdc_1'
-        : 'biocontainers/mmseqs2:17.b804f--hd6d6fdc_1'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/mmseqs2:17.b804f--hd6d6fdc_1':
+        'biocontainers/mmseqs2:17.b804f--hd6d6fdc_1' }"
 
     input:
     tuple val(meta), path(sequence)
 
     output:
     tuple val(meta), path("${prefix}/"), emit: db
-    path "versions.yml", emit: versions
+    path "versions.yml"                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -33,7 +33,7 @@ process MMSEQS_CREATEDB {
         createdb \\
         ${sequence_name} \\
         ${prefix}/${prefix} \\
-        ${args}
+        $args
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

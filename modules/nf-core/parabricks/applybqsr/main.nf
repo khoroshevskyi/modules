@@ -16,7 +16,7 @@ process PARABRICKS_APPLYBQSR {
     output:
     tuple val(meta), path("*.bam"), emit: bam
     tuple val(meta), path("*.bai"), emit: bai
-    path "versions.yml", emit: versions
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,12 +24,12 @@ process PARABRICKS_APPLYBQSR {
     script:
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
-        error("Parabricks module does not support Conda. Please use Docker / Singularity / Podman instead.")
+        error "Parabricks module does not support Conda. Please use Docker / Singularity / Podman instead."
     }
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    def interval_command = intervals ? intervals.collect { "--interval-file ${it}" }.join(' ') : ""
-    def num_gpus = task.accelerator ? "--num-gpus ${task.accelerator.request}" : ''
+    def args             = task.ext.args ?: ''
+    def prefix           = task.ext.prefix ?: "${meta.id}"
+    def interval_command = intervals ? intervals.collect{"--interval-file $it"}.join(' ') : ""
+    def num_gpus         = task.accelerator ? "--num-gpus $task.accelerator.request" : ''
     """
     pbrun \\
         applybqsr \\

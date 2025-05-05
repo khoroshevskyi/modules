@@ -1,20 +1,20 @@
 process HHSUITE_REFORMAT {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/hhsuite:3.3.0--py39pl5321h0dd7abe_13'
-        : 'biocontainers/hhsuite:3.3.0--py39pl5321h0dd7abe_13'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/hhsuite:3.3.0--py39pl5321h0dd7abe_13':
+        'biocontainers/hhsuite:3.3.0--py39pl5321h0dd7abe_13' }"
 
     input:
     tuple val(meta), path(aln)
-    val informat
-    val outformat
+    val(informat)
+    val(outformat)
 
     output:
     tuple val(meta), path("${prefix}.${outformat}.gz"), emit: msa
-    path "versions.yml", emit: versions
+    path "versions.yml"                               , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,12 +28,12 @@ process HHSUITE_REFORMAT {
         aln_name = aln.name.replace(".gz", "")
     }
     """
-    if [ "${is_compressed}" == "true" ]; then
-        gzip -c -d ${aln} > ${aln_name}
+    if [ "$is_compressed" == "true" ]; then
+        gzip -c -d $aln > $aln_name
     fi
 
     reformat.pl \\
-        ${args} \\
+        $args \\
         ${informat} \\
         ${outformat} \\
         ${aln_name} \\

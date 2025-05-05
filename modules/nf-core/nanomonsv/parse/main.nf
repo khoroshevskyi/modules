@@ -1,25 +1,25 @@
 process NANOMONSV_PARSE {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/nanomonsv:0.5.0--pyhdfd78af_0'
-        : 'biocontainers/nanomonsv:0.5.0--pyhdfd78af_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/nanomonsv:0.5.0--pyhdfd78af_0':
+        'biocontainers/nanomonsv:0.5.0--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), path(bam), path(bai)
 
     output:
-    tuple val(meta), path("${prefix}.insertion.sorted.bed.gz"), emit: insertions
-    tuple val(meta), path("${prefix}.insertion.sorted.bed.gz.tbi"), emit: insertions_index
-    tuple val(meta), path("${prefix}.deletion.sorted.bed.gz"), emit: deletions
-    tuple val(meta), path("${prefix}.deletion.sorted.bed.gz.tbi"), emit: deletions_index
-    tuple val(meta), path("${prefix}.rearrangement.sorted.bedpe.gz"), emit: rearrangements
+    tuple val(meta), path("${prefix}.insertion.sorted.bed.gz")          , emit: insertions
+    tuple val(meta), path("${prefix}.insertion.sorted.bed.gz.tbi")      , emit: insertions_index
+    tuple val(meta), path("${prefix}.deletion.sorted.bed.gz")           , emit: deletions
+    tuple val(meta), path("${prefix}.deletion.sorted.bed.gz.tbi")       , emit: deletions_index
+    tuple val(meta), path("${prefix}.rearrangement.sorted.bedpe.gz")    , emit: rearrangements
     tuple val(meta), path("${prefix}.rearrangement.sorted.bedpe.gz.tbi"), emit: rearrangements_index
-    tuple val(meta), path("${prefix}.bp_info.sorted.bed.gz"), emit: bp_info
-    tuple val(meta), path("${prefix}.bp_info.sorted.bed.gz.tbi"), emit: bp_info_index
-    path "versions.yml", emit: versions
+    tuple val(meta), path("${prefix}.bp_info.sorted.bed.gz")            , emit: bp_info
+    tuple val(meta), path("${prefix}.bp_info.sorted.bed.gz.tbi")        , emit: bp_info_index
+    path "versions.yml"                                                 , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

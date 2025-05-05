@@ -8,5 +8,5 @@ workflow test_khmer_uniquekmers {
 
     input = file(params.test_data['sarscov2']['genome']['genome_fasta'], checkIfExists: true)
 
-    KHMER_UNIQUEKMERS(input, 50)
+    KHMER_UNIQUEKMERS ( input, 50 )
 }

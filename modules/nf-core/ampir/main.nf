@@ -1,11 +1,11 @@
 process AMPIR {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/r-ampir:1.1.0'
-        : 'biocontainers/r-ampir:1.1.0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/r-ampir:1.1.0':
+        'biocontainers/r-ampir:1.1.0' }"
 
     input:
     tuple val(meta), path(faa)
@@ -16,7 +16,7 @@ process AMPIR {
     output:
     tuple val(meta), path("*.faa"), emit: amps_faa
     tuple val(meta), path("*.tsv"), emit: amps_tsv
-    path "versions.yml", emit: versions
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,9 +24,7 @@ process AMPIR {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    if ("${faa}" == "${prefix}.faa") {
-        error("Input and output names are the same, set prefix in module configuration to disambiguate!")
-    }
+    if ("$faa" == "${prefix}.faa") error "Input and output names are the same, set prefix in module configuration to disambiguate!"
     """
     #!/usr/bin/env Rscript
     library(ampir)
@@ -50,9 +48,7 @@ process AMPIR {
     stub:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    if ("${faa}" == "${prefix}.faa") {
-        error("Input and output names are the same, set prefix in module configuration to disambiguate!")
-    }
+    if ("$faa" == "${prefix}.faa") error "Input and output names are the same, set prefix in module configuration to disambiguate!"
     """
     #!/usr/bin/env Rscript
     library(ampir)

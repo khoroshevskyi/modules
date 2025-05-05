@@ -1,18 +1,19 @@
+
 process SEQTK_COMP {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/seqtk:1.4--h577a1d6_3'
-        : 'biocontainers/seqtk:1.4--h577a1d6_3'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/seqtk:1.4--h577a1d6_3':
+        'biocontainers/seqtk:1.4--h577a1d6_3' }"
 
     input:
     tuple val(meta), path(fastx)
 
     output:
     tuple val(meta), path("*.seqtk_stats.tsv"), emit: seqtk_stats
-    path "versions.yml", emit: versions
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

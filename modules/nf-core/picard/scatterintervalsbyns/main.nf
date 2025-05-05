@@ -1,11 +1,11 @@
 process PICARD_SCATTERINTERVALSBYNS {
-    tag "${fasta}"
+    tag "$fasta"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/picard:3.3.0--hdfd78af_0'
-        : 'biocontainers/picard:3.3.0--hdfd78af_0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/picard:3.3.0--hdfd78af_0' :
+        'biocontainers/picard:3.3.0--hdfd78af_0' }"
 
     input:
     tuple val(meta), path(fasta)
@@ -14,7 +14,7 @@ process PICARD_SCATTERINTERVALSBYNS {
 
     output:
     tuple val(meta), path("*.interval_list"), emit: intervals
-    path "versions.yml", emit: versions
+    path "versions.yml"                     , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

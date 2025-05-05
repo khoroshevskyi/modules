@@ -3,29 +3,29 @@ process ABRITAMR_RUN {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
         ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/b6/b6078836553c48db86c8a1d126ca764bc812b11aaeb7222299fe7be3a06ed68e/data'
-        : 'community.wave.seqera.io/library/abritamr:6aee07e42fbc9d88'}"
+        : 'community.wave.seqera.io/library/abritamr:6aee07e42fbc9d88' }"
 
     input:
     tuple val(meta), path(fasta)
 
     output:
-    tuple val(meta), path("*.summary_matches.txt"), emit: matches
-    tuple val(meta), path("*.summary_partials.txt"), emit: partials
+    tuple val(meta), path("*.summary_matches.txt")  , emit: matches
+    tuple val(meta), path("*.summary_partials.txt") , emit: partials
     tuple val(meta), path("*.summary_virulence.txt"), emit: virulence
-    tuple val(meta), path("*.amrfinder.out"), emit: out
-    tuple val(meta), path("*.abritamr.txt"), emit: txt, optional: true
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.amrfinder.out")        , emit: out
+    tuple val(meta), path("*.abritamr.txt")         , emit: txt, optional: true
+    path "versions.yml"                             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args          = task.ext.args ?: ''
+    def prefix        = task.ext.prefix ?: "${meta.id}"
     def is_compressed = fasta.getName().endsWith(".gz") ? true : false
-    def fasta_name = fasta.getName().replace(".gz", "")
+    def fasta_name    = fasta.getName().replace(".gz", "")
     """
     if [ "${is_compressed}" == "true" ]; then
         gzip -c -d ${fasta} > ${fasta_name}

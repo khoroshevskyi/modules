@@ -1,19 +1,19 @@
 process FCSGX_CLEANGENOME {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/ncbi-fcs-gx:0.5.4--h4ac6f70_1'
-        : 'biocontainers/ncbi-fcs-gx:0.5.4--h4ac6f70_1'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/ncbi-fcs-gx:0.5.4--h4ac6f70_1':
+        'biocontainers/ncbi-fcs-gx:0.5.4--h4ac6f70_1' }"
 
     input:
     tuple val(meta), path(fasta), path(fcsgx_report)
 
     output:
-    tuple val(meta), path("*.cleaned.fasta"), emit: cleaned
+    tuple val(meta), path("*.cleaned.fasta")     , emit: cleaned
     tuple val(meta), path("*.contaminants.fasta"), emit: contaminants
-    path "versions.yml", emit: versions
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

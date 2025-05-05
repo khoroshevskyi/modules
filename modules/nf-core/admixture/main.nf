@@ -1,20 +1,21 @@
 process ADMIXTURE {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/admixture:1.3.0--0'
-        : 'biocontainers/admixture:1.3.0--0'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/admixture:1.3.0--0':
+        'biocontainers/admixture:1.3.0--0' }"
 
     input:
-    tuple val(meta), path(bed_ped_geno), path(bim_map), path(fam)
+    tuple val(meta), path (bed_ped_geno), path(bim_map), path(fam)
     val K
 
+
     output:
-    tuple val(meta), path("*.Q"), emit: ancestry_fractions
-    tuple val(meta), path("*.P"), emit: allele_frequencies
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.Q")    , emit: ancestry_fractions
+    tuple val(meta), path("*.P")    , emit: allele_frequencies
+    path "versions.yml"             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,10 +25,10 @@ process ADMIXTURE {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     admixture \\
-        ${bed_ped_geno} \\
-        ${K} \\
-        -j${task.cpus} \\
-        ${args}
+        $bed_ped_geno \\
+        $K \\
+        -j$task.cpus \\
+        $args
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

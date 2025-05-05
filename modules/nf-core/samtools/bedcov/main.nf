@@ -1,11 +1,11 @@
 process SAMTOOLS_BEDCOV {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/samtools:1.21--h96c455f_1'
-        : 'biocontainers/samtools:1.21--h96c455f_1'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/samtools:1.21--h96c455f_1':
+        'biocontainers/samtools:1.21--h96c455f_1' }"
 
     input:
     tuple val(meta), path(input), path(input_index)
@@ -15,7 +15,7 @@ process SAMTOOLS_BEDCOV {
 
     output:
     tuple val(meta), path("*.tsv"), emit: coverage
-    path "versions.yml", emit: versions
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,10 +28,10 @@ process SAMTOOLS_BEDCOV {
     """
     samtools \\
         bedcov \\
-        ${args} \\
+        $args \\
         ${reference} \\
-        ${bed} \\
-        ${input} \\
+        $bed \\
+        $input \\
         > ${prefix}.tsv
 
     cat <<-END_VERSIONS > versions.yml
