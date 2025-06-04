@@ -9,8 +9,9 @@ process BWA_MEM {
 
     input:
     tuple val(meta) , path(reads)
-    tuple val(meta2), path(index)
+    tuple val(meta2), path(index, stageAs: "index")
     tuple val(meta3), path(fasta)
+    tuple val(meta4), path(altliftover)
     val   sort_bam
 
     output:
@@ -34,9 +35,12 @@ process BWA_MEM {
                     !sort_bam && args2.contains("-C")    ? "cram":
                     "bam"
     def reference = fasta && extension=="cram"  ? "--reference ${fasta}" : ""
+    // If altliftover file present, move it inside the index folder and ensure it has the same name as the index.
+    def altliftover_rename = altliftover ? "mv ${altliftover} \$INDEX.alt" : ""
     if (!fasta && extension=="cram") error "Fasta reference is required for CRAM output"
     """
     INDEX=`find -L ./ -name "*.amb" | sed 's/\\.amb\$//'`
+    ${altliftover_rename}
 
     bwa mem \\
         $args \\
