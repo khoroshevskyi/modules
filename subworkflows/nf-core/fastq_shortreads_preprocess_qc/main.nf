@@ -19,11 +19,11 @@ include { SEQKIT_RMDUP                      } from '../../../modules/nf-core/seq
 include { UMITOOLS_EXTRACT                  } from '../../../modules/nf-core/umitools/extract/main'
 // adapter removal and merging
 include { FASTP                             } from '../../../modules/nf-core/fastp/main'
-include { ADAPTERREMOVAL                    } from '../../../modules/nf-core/adapterremoval/main'
 include { TRIMGALORE                        } from '../../../modules/nf-core/trimgalore/main'
 include { TRIMMOMATIC                       } from '../../../modules/nf-core/trimmomatic/main'
 include { CUTADAPT                          } from '../../../modules/nf-core/cutadapt/main'
 include { BBMAP_BBDUK                       } from '../../../modules/nf-core/bbmap/bbduk/main'
+include { ADAPTERREMOVAL                    } from '../../../modules/nf-core/adapterremoval/main'
 include { NGMERGE                           } from '../../../modules/nf-core/ngmerge/main'
 include { LEEHOM                            } from '../../../modules/nf-core/leehom/main'
 // complexity filtering
