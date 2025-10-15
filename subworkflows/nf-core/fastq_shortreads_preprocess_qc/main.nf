@@ -41,10 +41,39 @@ include { CAT_FASTQ                         } from '../../../modules/nf-core/cat
 workflow FASTQ_SHORTREADS_PREPROCESS_QC {
 
     take:
-    ch_reads         // channel: [ val(meta), [ fastq ] ]
-    // TODO
-    skip_umi_extract // boolean
-    umi_discard_read // integer: 0, 1 or 2
+    ch_reads          // channel: [ val(meta), [ fastq ] ]
+    // statistics
+    skip_fastqc       // boolean
+    skip_seqfu_stats  // boolean
+    skip_seqkit_stats // boolean
+    skip_seqtk_comp   // boolean
+    // preprocessing
+    // TODO skip_seqfu_check // boolean
+    skip_seqkit_sana_pair // boolean
+    skip_seqkit_seq       // boolean
+    skip_seqkit_replace   // boolean
+    skip_seqkit_rmdup     // boolean
+    // barcoding
+    skip_umitools_extract // boolean
+    umi_discard_read      // integer: 0, 1 or 2
+    // adapter removal and merging
+    skip_fastp          // boolean
+    skip_trimgalore     // boolean
+    skip_trimmomatic    // boolean
+    skip_cutadapt       // boolean
+    skip_bbmap_bbduk    // boolean
+    skip_adapterremoval // boolean
+    skip_ngmerge        // boolean
+    skip_leehom         // boolean
+    // complexity filtering
+    skip_prinseqplusplus // boolean
+    // deduplication
+    skip_bbmap_clumpify // boolean
+    // host decontamination
+    // TODO skip_deacon // boolean
+    skip_hostile // boolean
+    // final concatenation
+    skip_cat_fastq // boolean
 
     main:
 
@@ -62,7 +91,7 @@ workflow FASTQ_SHORTREADS_PREPROCESS_QC {
     // barcoding
     umi_reads = ch_reads
     umi_log = Channel.empty()
-    if (!skip_umi_extract) {
+    if (!skip_umitools_extract) {
         UMITOOLS_EXTRACT( ch_reads )
         umi_reads = UMITOOLS_EXTRACT.out.reads
         umi_log = UMITOOLS_EXTRACT.out.log
