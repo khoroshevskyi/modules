@@ -1,10 +1,42 @@
-// TODO
-include { UMITOOLS_EXTRACT } from '../../../modules/nf-core/umitools/extract/main'
-
-include { PRINSEQPLUSPLUS  } from '../../../modules/nf-core/prinseqplusplus/main'
-include { BBMAP_CLUMPIFY   } from '../../../modules/nf-core/bbmap/clumpify/main'
-
-include { CAT_FASTQ        } from '../../../modules/nf-core/cat/fastq/main'
+// TODO - swap modules with subworkflows when ready
+// statistics
+include { FASTQC as FASTQC_PRE              } from '../../../modules/nf-core/fastqc/main'
+include { FASTQC as FASTQC_POST             } from '../../../modules/nf-core/fastqc/main'
+include { SEQFU_STATS as SEQFU_STATS_PRE    } from '../../../modules/nf-core/seqfu/stats/main'
+include { SEQFU_STATS as SEQFU_STATS_POST   } from '../../../modules/nf-core/seqfu/stats/main'
+include { SEQKIT_STATS as SEQKIT_STATS_PRE  } from '../../../modules/nf-core/seqkit/stats/main'
+include { SEQKIT_STATS as SEQKIT_STATS_POST } from '../../../modules/nf-core/seqkit/stats/main'
+include { SEQTK_COMP as SEQTK_COMP_PRE      } from '../../../modules/nf-core/seqtk/comp/main'
+include { SEQTK_COMP as SEQTK_COMP_POST     } from '../../../modules/nf-core/seqtk/comp/main'
+// preprocessing
+// TODO include { SEQFU_CHECK                       } from '../../../modules/nf-core/seqfu/check/main'
+include { SEQKIT_SANA                       } from '../../../modules/nf-core/seqkit/sana/main'
+include { SEQKIT_PAIR                       } from '../../../modules/nf-core/seqkit/pair/main'
+include { SEQKIT_SEQ                        } from '../../../modules/nf-core/seqkit/seq/main'
+include { SEQKIT_REPLACE                    } from '../../../modules/nf-core/seqkit/replace/main'
+include { SEQKIT_RMDUP                      } from '../../../modules/nf-core/seqkit/rmdup/main'
+// barcoding
+include { UMITOOLS_EXTRACT                  } from '../../../modules/nf-core/umitools/extract/main'
+// adapter removal and merging
+include { FASTP                             } from '../../../modules/nf-core/fastp/main'
+include { ADAPTERREMOVAL                    } from '../../../modules/nf-core/adapterremoval/main'
+include { TRIMGALORE                        } from '../../../modules/nf-core/trimgalore/main'
+include { TRIMMOMATIC                       } from '../../../modules/nf-core/trimmomatic/main'
+include { CUTADAPT                          } from '../../../modules/nf-core/cutadapt/main'
+include { BBMAP_BBDUK                       } from '../../../modules/nf-core/bbmap/bbduk/main'
+include { NGMERGE                           } from '../../../modules/nf-core/ngmerge/main'
+include { LEEHOM                            } from '../../../modules/nf-core/leehom/main'
+// complexity filtering
+include { PRINSEQPLUSPLUS                   } from '../../../modules/nf-core/prinseqplusplus/main'
+// deduplication
+include { BBMAP_CLUMPIFY                    } from '../../../modules/nf-core/bbmap/clumpify/main'
+// host decontamination
+include { DEACON_INDEX                      } from '../../../modules/nf-core/deacon/index/main'
+// TODO include { DEACON_FILTER                     } from '../../../modules/nf-core/deacon/filter/main'
+include { HOSTILE_FETCH                     } from '../../../modules/nf-core/hostile/fetch/main'
+include { HOSTILE_CLEAN                     } from '../../../modules/nf-core/hostile/clean/main'
+// final concatenation
+include { CAT_FASTQ                         } from '../../../modules/nf-core/cat/fastq/main'
 
 workflow FASTQ_SHORTREADS_PREPROCESS_QC {
 
@@ -19,15 +51,15 @@ workflow FASTQ_SHORTREADS_PREPROCESS_QC {
     ch_versions = Channel.empty()
     // TODO
 
-    // Pre - statistics
+    // pre - statistics
     // TODO
     // ...
 
-    // Pre-processing
+    // preprocessing
     // TODO
     // ...
 
-    // Barcoding
+    // barcoding
     umi_reads = ch_reads
     umi_log = Channel.empty()
     if (!skip_umi_extract) {
@@ -46,36 +78,36 @@ workflow FASTQ_SHORTREADS_PREPROCESS_QC {
         }
     }
 
-    // Adapter removal and merging
+    // adapter removal and merging
     // TODO
     // ...
 
-    // Complexity filtering
+    // complexity filtering
     // TODO
     // if (!skip_complexity_filtering) {
     //     PRINSEQPLUSPLUS( ... )
     //     ch_versions = ch_versions.mix(PRINSEQPLUSPLUS.out.versions.first())
     // }
 
-    // Deduplication
+    // deduplication
     // TODO
     // if (!skip_deduplication) {
     //     BBMAP_CLUMPIFY( ... )
     //     ch_versions = ch_versions.mix(BBMAP_CLUMPIFY.out.versions.first())
     // }
 
-    // Host decontamination
+    // host decontamination
     // TODO
     // ...
 
-    // Final concatenation
+    // final concatenation
     // TODO
     // if (!skip_final_concatenation) {
     //     CAT_FASTQ( ... )
     //     ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first())
     // }
 
-    // Post - statistics
+    // post - statistics
     // TODO
     // ...
 
